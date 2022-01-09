@@ -1,21 +1,21 @@
 (ns app.core
-  (:require [helix.core :refer [defnc $]]
-            [helix.dom :as d]
-            ["react-dom" :as rdom]))
+  (:require [reagent.core :as r]
+            [reagent.dom :as rdom]))
 
-(defnc app []
-  (d/div
-   (d/h1 {:class "code"}
-         "Hello World!")
-   (d/button {:class "btn btn-success"}
-             "Click SuccessButton!")
-   (d/button {:class "btn btn-secondary"}
-             "Click SecondaryButton!")))
+(defn simple-example []
+  [:div
+   [:h2 "abcdef"]])
 
-(defn render []
-  (rdom/render
-   ($ app)
-   (js/document.getElementById "root")))
+(def id-to-html "root")
+
+(defn run []
+  (rdom/render [simple-example]
+               (js/document.getElementById id-to-html)))
 
 (defn ^:export init []
-  (render))
+  (run)
+  (js/console.log "Loaded"))
+
+(defn ^:export refresh []
+  (run)
+  (js/console.log "Hot reload"))

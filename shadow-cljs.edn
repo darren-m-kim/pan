@@ -2,10 +2,11 @@
  :nrepl {:port 9000}
  :dependencies [[cider/cider-nrepl "0.27.4"]
                 [binaryage/devtools "1.0.4"]
-                [lilactown/helix "0.1.5"]]
+                [reagent "1.1.0"]]
  :builds {:app {:target :browser
                 :output-dir "resources/public/js"
                 :modules {:main {:init-fn app.core/init}}
                 :devtools {:preloads [devtools.preload]
+                           :after-load app.core/refresh
                            :http-root "resources/public"
                            :http-port 3000}}}}
