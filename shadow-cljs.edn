@@ -1,4 +1,4 @@
-{:source-paths ["src/cljs"]
+{:source-paths ["src/cljs" "src/cljc"]
  :nrepl {:port 9000}
  :dependencies [[cider/cider-nrepl "0.27.4"]
                 [binaryage/devtools "1.0.4"]

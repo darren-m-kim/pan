@@ -1,7 +1,8 @@
 (ns app.core
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
-            ["halfmoon" :as moon]))
+            ["halfmoon" :as moon]
+            [app.parser :as p]))
 
 (defonce state-db (r/atom {}))
 
@@ -41,7 +42,7 @@
 
 (defn version-label []
   [:span {:class "navbar-text text-monospace"}
-   "v0.1"])
+   (p/combine "v0.1" "**")])
 
 (defn service-labels []
   [:ul {:class "navbar-nav d-none d-md-flex"} " "
