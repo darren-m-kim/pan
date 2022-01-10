@@ -1,5 +1,11 @@
 .DS_Store
-.cpcache
-.shadow-cljs
-node_modules
+.cpcache/
+.shadow-cljs/
+node_modules/
 resources/public/js/
+.cpcache/
+.nrepl-port/
+app.log/
+log-archive/
+dev-classes/
+.eastwood/
