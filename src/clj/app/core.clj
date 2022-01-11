@@ -1,4 +1,5 @@
-(ns app.core)
+(ns app.core
+  (:require [app.parser :as p]))
 
 (defn run [opts]
-  (prn "HILOONG!"))
+  (prn (p/combine "Hi, " "LOONGA!")))
