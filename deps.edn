@@ -2,5 +2,7 @@
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
         ring/ring-jetty-adapter {:mvn/version "1.9.4"}
         metosin/reitit {:mvn/version "0.5.15"}
+        com.xtdb/xtdb-core {:mvn/version "1.20.0"}
+        com.xtdb/xtdb-rocksdb {:mvn/version "1.20.0"}
         integrant/integrant {:mvn/version "0.8.0"}
         integrant/repl {:mvn/version "0.3.2"}}}
