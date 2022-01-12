@@ -9,10 +9,12 @@
    [reitit.coercion.spec]
    [reitit.ring.coercion :as coercion]
    [muuntaja.core :as m]
-   [ring.adapter.jetty :as jetty]))
+   [reitit.dev.pretty :as pretty]
+   [app.middleware :as mw]))
 
-(def ok
-  (constantly {:status 200 :body "ok"}))
+(defn ok [{:keys [db] :as req}]
+  (println "db:" db)
+  (constantly {:status 200 :body "yay"}))
 
 (def routes
   [["/swagger.json"
@@ -39,31 +41,25 @@
                          :parameters {:path {:id int?}}
                          :handler ok}}]]])
 
-(def router
-  (ring/router
-   routes
-   {:data {:coercion reitit.coercion.spec/coercion
-           :muuntaja m/instance
-           :middleware [swagger/swagger-feature
-                        muuntaja/format-negotiate-middleware
-                        muuntaja/format-response-middleware
-                        exception/exception-middleware ; order important
-                        muuntaja/format-request-middleware
-                        coercion/coerce-request-middleware
-                        coercion/coerce-response-middleware]}}))
-
-(def app
+(defn create-app [db]
   (ring/ring-handler
-   router
+   (ring/router
+    routes
+    {:exception pretty/exception
+     :data {:db db
+            :coercion reitit.coercion.spec/coercion
+            :muuntaja m/instance
+            :middleware [swagger/swagger-feature
+                         muuntaja/format-negotiate-middleware
+                         muuntaja/format-response-middleware
+                         exception/exception-middleware
+                         muuntaja/format-request-middleware
+                         coercion/coerce-request-middleware
+                         coercion/coerce-response-middleware
+                         mw/db]}})
    (ring/routes
     (swagger-ui/create-swagger-ui-handler
      {:path "/"}))))
-
-(defn start []
-  (jetty/run-jetty
-   #'app
-   {:port 3000 :join? false})
-  (println "server running on port 3000"))
 
 (comment 
   (app {:request-method :get :uri "/ping"})
