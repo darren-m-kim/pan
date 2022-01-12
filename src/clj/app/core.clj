@@ -1,5 +1,7 @@
 (ns app.core
-  (:require [app.parser :as p]))
+  (:require
+   [integrant.core :as ig]
+   [app.system :as system]))
 
-(defn run [opts]
-  (prn (p/combine "Hi, " "LOONGA!")))
+(defn run [_]
+  (ig/init system/config))

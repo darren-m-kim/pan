@@ -1,16 +1,15 @@
 (ns app.handler
   (:require
-   [reitit.core :as r]
-   [reitit.ring :as ring]
-   [reitit.swagger :as swagger]
-   [reitit.swagger-ui :as swagger-ui]
-   [reitit.ring.middleware.muuntaja :as muuntaja]
-   [reitit.ring.middleware.exception :as exception]
-   [reitit.coercion.spec]
-   [reitit.ring.coercion :as coercion]
-   [muuntaja.core :as m]
-   [reitit.dev.pretty :as pretty]
-   [app.middleware :as mw]))
+   [reitit.ring :as reri]
+   [reitit.swagger :as swag]
+   [reitit.swagger-ui :as swui]
+   [reitit.ring.middleware.muuntaja :as remu]
+   [reitit.ring.middleware.exception :as rexc]
+   [reitit.coercion.spec :as rspe]
+   [reitit.ring.coercion :as reco]
+   [muuntaja.core :as muun]
+   [reitit.dev.pretty :as rpre]
+   [app.middleware :as middleware]))
 
 (defn ok [{:keys [db] :as req}]
   (println "db:" db)
@@ -20,7 +19,7 @@
   [["/swagger.json"
     {:get {:no-doc true
            :swagger {:info {:title "pan"}}
-           :handler (swagger/create-swagger-handler)}}]
+           :handler (swag/create-swagger-handler)}}]
    ["/comments" {:swagger {:tags ["comments"]}}
     ["" {:get {:summary "get all comments"
                :handler ok}
@@ -42,26 +41,21 @@
                          :handler ok}}]]])
 
 (defn create-app [db]
-  (ring/ring-handler
-   (ring/router
+  (reri/ring-handler
+   (reri/router
     routes
-    {:exception pretty/exception
+    {:exception rpre/exception
      :data {:db db
-            :coercion reitit.coercion.spec/coercion
-            :muuntaja m/instance
-            :middleware [swagger/swagger-feature
-                         muuntaja/format-negotiate-middleware
-                         muuntaja/format-response-middleware
-                         exception/exception-middleware
-                         muuntaja/format-request-middleware
-                         coercion/coerce-request-middleware
-                         coercion/coerce-response-middleware
-                         mw/db]}})
-   (ring/routes
-    (swagger-ui/create-swagger-ui-handler
+            :coercion rspe/coercion
+            :muuntaja muun/instance
+            :middleware [swag/swagger-feature
+                         remu/format-negotiate-middleware
+                         remu/format-response-middleware
+                         rexc/exception-middleware
+                         remu/format-request-middleware
+                         reco/coerce-request-middleware
+                         reco/coerce-response-middleware
+                         middleware/db]}})
+   (reri/routes
+    (swui/create-swagger-ui-handler
      {:path "/"}))))
-
-(comment 
-  (app {:request-method :get :uri "/ping"})
-  (start)
-  )
