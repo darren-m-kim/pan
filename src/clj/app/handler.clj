@@ -40,22 +40,31 @@
                          :parameters {:path {:id int?}}
                          :handler ok}}]]])
 
-(defn create-app [db]
-  (reri/ring-handler
-   (reri/router
-    routes
-    {:exception rpre/exception
-     :data {:db db
-            :coercion rspe/coercion
-            :muuntaja muun/instance
-            :middleware [swag/swagger-feature
-                         remu/format-negotiate-middleware
-                         remu/format-response-middleware
-                         rexc/exception-middleware
-                         remu/format-request-middleware
-                         reco/coerce-request-middleware
-                         reco/coerce-response-middleware
-                         middleware/db]}})
-   (reri/routes
+(defn make-opts [db]
+  {:exception rpre/exception
+   :data {:db db
+          :coercion rspe/coercion
+          :muuntaja muun/instance
+          :middleware [swag/swagger-feature
+                       remu/format-negotiate-middleware
+                       remu/format-response-middleware
+                       rexc/exception-middleware
+                       remu/format-request-middleware
+                       reco/coerce-request-middleware
+                       reco/coerce-response-middleware
+                       middleware/db]}})
+
+(defn make-router [db]
+  (reri/router
+   routes
+   (make-opts db)))
+
+(defn make-default-handler []
+  (reri/routes
     (swui/create-swagger-ui-handler
-     {:path "/"}))))
+     {:path "/"})))
+
+(defn make-app [db]
+  (reri/ring-handler
+   (make-router db)
+   (make-default-handler)))

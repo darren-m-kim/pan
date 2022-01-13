@@ -2,23 +2,33 @@
   (:require
    [integrant.core :as intg]
    [ring.adapter.jetty :as jett]
-   [app.handler :as handler]))
+   [app.handler :as handler]
+   [app.database :as database]))
 
 (def config
-  {:comment/jetty {:handler (intg/ref :comment/handler)
-                   :port 3000}
-   :comment/handler {:db (intg/ref :comment/sqlite)}
-   :comment/sqlite nil})
+  {:app/jetty {:handler (intg/ref :app/handler)
+               :port 3000}
+   :app/handler {:db (intg/ref :app/db)}
+   :app/db nil})
 
-(defmethod intg/init-key :comment/jetty [_ {:keys [handler port]}]
+(defmethod intg/init-key
+  :app/jetty [_ {:keys [handler port]}]
   (println "server running on port 3000")
-  (jett/run-jetty handler {:port port :join? false}))
+  (jett/run-jetty handler {:port port
+                           :join? false}))
 
-(defmethod intg/init-key :comment/handler [_ {:keys [db]}]
-  (handler/create-app db))
+(defmethod intg/init-key
+  :app/handler [_ {:keys [db]}]
+  (handler/make-app db))
 
-(defmethod intg/init-key :comment/sqlite [_ _]
-  {:no-db true})
+(defmethod intg/init-key
+  :app/db [_ _]
+  (database/open!))
 
-(defmethod intg/halt-key! :comment/jetty [_ jetty]
+(defmethod intg/halt-key!
+  :app/jetty [_ jetty]
   (.stop jetty))
+
+(defmethod intg/halt-key!
+  :app/db [_ db]
+  (database/close! db))
