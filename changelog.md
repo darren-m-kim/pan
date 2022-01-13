@@ -1,3 +1,6 @@
+# 2022-01-12
+* added sign-on page and toggling function.
+* connected xtdb to integrant.
 # 2022-01-11
 * adopted xtdb following:
 https://docs.xtdb.com/guides/quickstart

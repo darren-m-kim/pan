@@ -4,7 +4,14 @@
             ["halfmoon" :as moon]
             [app.parser :as p]))
 
-(defonce state-db (r/atom {}))
+(defonce dark (r/atom true))
+(defonce client (r/atom nil))
+(defonce worker (r/atom nil))
+
+(defn show-db []
+  (merge {:dark @dark}
+         {:client @client}
+         {:worker @worker}))
 
 (defn toggle-sidebar-btn []
   [:button {:class "btn btn-action"
@@ -16,15 +23,13 @@
 (defn brand-logo []
   [:a {:href "#"
        :class "navbar-text text-monospace"}
-   [:img {:src "...", :alt "atomic"}]])
-
+   [:p "bitem"]])
+ 
 (defn change-color-btn []
   [:button {:class "btn btn-action"
             :on-click
             (fn []
-              (do (swap! state-db
-                         #(assoc % :dark-mode
-                                 (-> @state-db :dark-mode not)))
+              (do (swap! dark (fn [mode] (not mode)))
                   (moon/toggleDarkMode)))}
    [:i {:class "fas fa-moon"
         :aria-hidden "true"}]])
@@ -36,17 +41,17 @@
            :required "required"}])
 
 (defn sign-change-btn []
-  [:button {:class "btn btn-primary"
-            :type "submit"}
-   "Sign up"])
+  [:button {:class "btn"
+            :on-click (fn [] (reset! worker nil))}
+   "Sign Out"])
 
 (defn version-label []
   [:span {:class "navbar-text text-monospace"}
-   (p/combine "v0.1" "**")])
+   (p/combine "v" "0.1")])
 
 (defn service-labels []
   [:ul {:class "navbar-nav d-none d-md-flex"} " "
-   [:li {:class "nav-item active"}
+   [:li {:class "nav-item"}
     [:a {:href "#", :class "nav-link"}
      "Docs"]]
    [:li {:class "nav-item"}
@@ -88,24 +93,43 @@
     [:h5 {:class "sidebar-title"}
      "Components"]
     [:div {:class "sidebar-divider"}]    
-    (item-in-side-bar "fa fa-terminal" "Dashboard?")
+    (item-in-side-bar "fa fa-terminal" "Entity")
+    (item-in-side-bar "fa fa-terminal" "Ownership")
+    (item-in-side-bar "fa fa-terminal" "Transaction")
     (item-in-side-bar "fa fa-terminal" "Journal")
-    (item-in-side-bar "fa fa-camera-retro fa-lg" "Balance")]])
+    (item-in-side-bar "fa fa-terminal" "Ledger")
+    (item-in-side-bar "fa fa-terminal" "Report")]])
 
-(defn scaffold []
+(defn dash-pg []
   [:div
-   (navbar)
-   (sidebar)])
+   [navbar]
+   [sidebar]])
 
-(defonce id-to-html "root")
+(defn sign-on-btn []
+  [:button
+   {:on-click (fn []
+                (reset! client 123)
+                (reset! worker 456))}
+   "abc"])
+
+(defn sign-pg []
+  [sign-on-btn])
+
+(defn scaffold
+  "the selector of all pages."
+  []
+  (println (show-db))
+  (if (some nil? [@client @worker])
+    [sign-pg]
+    [dash-pg]))
 
 (defn run []
   (rdom/render
-   (scaffold)
-   (js/document.getElementById id-to-html)))
+   [scaffold]
+   (js/document.getElementById "root")))
 
 (defn ^:export init []
-  (swap! state-db (fn [db] (assoc db :dark-mode true)))
+  (reset! dark true)
   (moon/toggleDarkMode)
   (run)
   (js/console.log "Loaded"))
