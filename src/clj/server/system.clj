@@ -1,9 +1,9 @@
-(ns app.system
+(ns server.system
   (:require
    [integrant.core :as intg]
    [ring.adapter.jetty :as jett]
-   [app.handler :as handler]
-   [app.database :as database]))
+   [server.handler :as handler]
+   [server.database :as database]))
 
 (def config
   {:app/jetty {:handler (intg/ref :app/handler)

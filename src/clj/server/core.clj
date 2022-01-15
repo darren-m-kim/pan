@@ -1,7 +1,7 @@
-(ns app.core
+(ns server.core
   (:require
    [integrant.core :as ig]
-   [app.system :as system]))
+   [server.system :as system]))
 
 (defn run [_]
   (ig/init system/config))

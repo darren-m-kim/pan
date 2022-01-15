@@ -1,4 +1,4 @@
-(ns app.database
+(ns server.database
   (:require [clojure.java.io :as io]
             [xtdb.api :as xt]
             [shared.random :as random]))

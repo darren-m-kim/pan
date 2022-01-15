@@ -1,4 +1,4 @@
-(ns app.handler
+(ns server.handler
   (:require
    [reitit.ring :as reri]
    [reitit.swagger :as swag]
@@ -9,7 +9,7 @@
    [reitit.ring.coercion :as reco]
    [muuntaja.core :as muun]
    [reitit.dev.pretty :as rpre]
-   [app.middleware :as middleware]))
+   [server.middleware :as middleware]))
 
 (defn ok [{:keys [db] :as req}]
   (println "db:" db)

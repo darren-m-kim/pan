@@ -1,4 +1,4 @@
-(ns app.middleware)
+(ns server.middleware)
 
 (def db
   {:name ::db
