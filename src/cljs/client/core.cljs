@@ -1,8 +1,8 @@
-(ns app.core
+(ns client.core
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
             ["halfmoon" :as moon]
-            [app.parser :as p]))
+            [shared.parser :as p]))
 
 (defonce dark (r/atom true))
 (defonce client (r/atom nil))
