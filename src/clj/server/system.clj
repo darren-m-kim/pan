@@ -5,15 +5,17 @@
    [server.handler :as handler]
    [server.database :as database]))
 
+(def port 3548)
+
 (def config
   {:app/jetty {:handler (intg/ref :app/handler)
-               :port 3000}
+               :port port}
    :app/handler {:db (intg/ref :app/db)}
    :app/db nil})
 
 (defmethod intg/init-key
   :app/jetty [_ {:keys [handler port]}]
-  (println "server running on port 3000")
+  (println "server running on port " port)
   (jett/run-jetty handler {:port port
                            :join? false}))
 

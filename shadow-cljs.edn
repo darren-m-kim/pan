@@ -9,4 +9,4 @@
                 :devtools {:preloads [devtools.preload]
                            :after-load client.core/refresh
                            :http-root "resources/public"
-                           :http-port 3000}}}}
+                           :http-port 1729}}}}
