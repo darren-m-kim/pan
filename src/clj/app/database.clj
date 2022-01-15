@@ -1,7 +1,7 @@
 (ns app.database
   (:require [clojure.java.io :as io]
             [xtdb.api :as xt]
-            [app.random :as random]))
+            [shared.random :as random]))
 
 (defn kv-store [dir]
   {:kv-store {:xtdb/module 'xtdb.rocksdb/->kv-store

@@ -1,4 +1,4 @@
-(ns app.parser)
+(ns shared.parser)
 
 (defn combine [a b]
   (str a b))
