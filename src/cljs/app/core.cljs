@@ -7,29 +7,67 @@
 (defonce dark (r/atom true))
 (defonce client (r/atom nil))
 (defonce worker (r/atom nil))
+(defonce page (r/atom nil))
 
 (defn show-db []
   (merge {:dark @dark}
          {:client @client}
          {:worker @worker}))
 
+(defn sign-in-crd []
+  [:div {:class "w-400 mw-full"}
+   [:div {:class "card p-1"}
+    [:div {:class "px-card py-30"}
+     [:h3 {:class "text-center"}
+      "Bitem"]
+     [:h5 {:class "text-center"}
+      "Investment Accounting Suite"]]
+    [:div {:class "content"}
+     [:form
+      [:div {:class "form-group input-group"}
+       [:div {:class "input-group-prepend"}
+        [:span {:class "input-group-text"}
+         [:i {:class "fa fa-envelope-o",
+              :aria-hidden "true"}]]]
+       [:input {:type "email",
+                :class "form-control",
+                :placeholder "email",
+                :required "required"}]]
+      [:div {:class "form-group input-group"}
+       [:div {:class "input-group-prepend"}
+        [:span {:class "input-group-text"}
+         [:i {:class "fa fa-envelope-o",
+              :aria-hidden "true"}]]]
+       [:input {:type "password",
+                :class "form-control",
+                :placeholder "password",
+                :required "required"}]]
+      [:input {:class "btn btn-primary btn-block",
+               :value "Sign In"
+               :on-click (fn []
+                           (reset! client 123)
+                           (reset! worker 456)
+                           (reset! page :dash))}]]]
+    [:div {:class "px-card py-10 bg-light-lm bg-very-dark-dm rounded-bottom"}
+     [:p {:class "font-size-12 m-0"}
+      "We will notify you whenever we make a new post. No spam, no marketing, we promise."]]]])
+
 (defn toggle-sidebar-btn []
   [:button {:class "btn btn-action"
-            :type "button"
-            :on-click (fn [] (moon/toggleSidebar))}
+            :type "button"}
    [:i {:class "fa fa-bars"
         :aria-hidden "true"}]])
 
 (defn brand-logo []
   [:a {:href "#"
        :class "navbar-text text-monospace"}
-   [:p "bitem"]])
+   [:p "Bitem"]])
  
 (defn change-color-btn []
   [:button {:class "btn btn-action"
             :on-click
             (fn []
-              (do (swap! dark (fn [mode] (not mode)))
+              (do (swap! dark #(not %))
                   (moon/toggleDarkMode)))}
    [:i {:class "fas fa-moon"
         :aria-hidden "true"}]])
@@ -40,12 +78,15 @@
            :placeholder "search"
            :required "required"}])
 
-(defn sign-change-btn []
+(defn sign-out-btn []
   [:button {:class "btn"
-            :on-click (fn [] (reset! worker nil))}
+            :on-click (fn []
+                        (reset! worker nil)
+                        (reset! client nil)
+                        (reset! page :sign-in))}
    "Sign Out"])
 
-(defn version-label []
+(defn version-lb []
   [:span {:class "navbar-text text-monospace"}
    (p/combine "v" "0.1")])
 
@@ -60,18 +101,18 @@
 
 (defn nav-content []
   [:div {:class "navbar-content"}
-   (toggle-sidebar-btn)
-   (brand-logo)
-   (version-label)
-   (service-labels)])
+   [toggle-sidebar-btn]
+   [brand-logo]
+   [version-lb]
+   [service-labels]])
 
 (defn nav-form []
   [:form {:class "form-inline d-none d-md-flex ml-auto"}
-   (change-color-btn)
-   (search-box)
-   (sign-change-btn)])
+   [change-color-btn]
+   [search-box]
+   [sign-out-btn]])
 
-(defn navbar []
+(defn nav-bar []
   [:div {:class "page-wrapper with-navbar"}
    [:nav
     {:class "navbar"}
@@ -86,7 +127,7 @@
          :aria-hidden true}]]
    subject])
 
-(defn sidebar []
+(defn side-bar []
   [:div {:class "sidebar"}
    [:div {:class "sidebar-menu"}
     [:br]
@@ -102,30 +143,27 @@
 
 (defn dash-pg []
   [:div
-   [navbar]
-   [sidebar]])
+   [nav-bar]
+   [side-bar]])
 
-(defn sign-on-btn []
-  [:button
-   {:on-click (fn []
-                (reset! client 123)
-                (reset! worker 456))}
-   "abc"])
+(defn sign-in-pg []
+  [:div {:class "page-wrapper"}
+   [:div {:class "content-wrapper"}
+    [sign-in-crd]]])
 
-(defn sign-pg []
-  [sign-on-btn])
-
-(defn scaffold
-  "the selector of all pages."
+(defn pg-selector
+  "selects page per values in client and worker."
   []
   (println (show-db))
-  (if (some nil? [@client @worker])
-    [sign-pg]
-    [dash-pg]))
+  (case @page
+    :intro nil
+    :sign-in [sign-in-pg]
+    :dash [dash-pg]
+    [sign-in-pg]))
 
 (defn run []
   (rdom/render
-   [scaffold]
+   [pg-selector]
    (js/document.getElementById "root")))
 
 (defn ^:export init []

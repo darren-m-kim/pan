@@ -1,3 +1,7 @@
+# 2022-01-14
+* adopted page selector atom.
+# 2022-01-13
+* did research on database.
 # 2022-01-12
 * added sign-on page and toggling function.
 * connected xtdb to integrant.
