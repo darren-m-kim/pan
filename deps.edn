@@ -1,8 +1,10 @@
-{:paths ["src/clj" "src/cljc" "dev/clj" "resources"]
+{:paths ["src/clj" "src/cljc"
+         ;;"dev/clj"
+         "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
-        ring/ring-jetty-adapter {:mvn/version "1.9.4"}
-        metosin/reitit {:mvn/version "0.5.15"}
-        com.xtdb/xtdb-core {:mvn/version "1.20.0"}
-        com.xtdb/xtdb-rocksdb {:mvn/version "1.20.0"}
+        ring/ring {:mvn/version "1.9.5"}
+        ring/ring-json {:mvn/version "0.5.1"}
+        compojure/compojure {:mvn/version "1.6.2"}            
+        ring-cors/ring-cors {:mvn/version "0.1.13"}
         integrant/integrant {:mvn/version "0.8.0"}
         integrant/repl {:mvn/version "0.3.2"}}}

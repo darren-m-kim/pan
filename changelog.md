@@ -1,4 +1,9 @@
+# 2022-01-16
+* connected client to server.
+* simplified server codebase.
 # 2022-01-14
+* updated port numbers to be unique.
+* renamed namespaces to be unique.
 * adopted page selector atom.
 # 2022-01-13
 * did research on database.

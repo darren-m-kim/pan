@@ -1,8 +1,12 @@
 (ns client.core
+  (:require-macros [cljs.core.async.macros
+                    :refer [go]])
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
             ["halfmoon" :as moon]
-            [shared.parser :as p]))
+            [shared.parser :as p]
+            [cljs-http.client :as http]
+            [cljs.core.async :refer [<!]]))
 
 (defonce dark (r/atom true))
 (defonce client (r/atom nil))
@@ -68,7 +72,11 @@
             :on-click
             (fn []
               (do (swap! dark #(not %))
-                  (moon/toggleDarkMode)))}
+                  (moon/toggleDarkMode)
+                  (go (let [response (<! (http/get
+                                          "http://localhost:3548/test"
+                                          {:with-credentials? false}))]
+                        (prn (:body response))))))}
    [:i {:class "fas fa-moon"
         :aria-hidden "true"}]])
 
