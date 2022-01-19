@@ -7,5 +7,7 @@
         ring-cors/ring-cors {:mvn/version "0.1.13"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         compojure/compojure {:mvn/version "1.6.2"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.2.761"}
+        org.postgresql/postgresql {:mvn/version "42.2.10"}
         integrant/integrant {:mvn/version "0.8.0"}
         integrant/repl {:mvn/version "0.3.2"}}}

@@ -11,8 +11,26 @@
    [compojure.core :refer
     [routes GET POST PUT DELETE]]
    [compojure.route :refer [not-found]]
+   [next.jdbc :as jdbc]
    ;;[integrant.core :refer [ref] :rename {ref iref}]
    [shared.random :refer [uuid]]))
+
+(def db {:dbtype "postgres"
+         :dbname "pan"})
+
+(def ds (jdbc/get-datasource db))
+
+(jdbc/execute! ds ["
+create table client (
+  id serial primary key,
+  name text not null)"])
+
+(jdbc/execute!
+ ds
+ ["insert into client (name) values ('Sean Corfield')"])
+
+(jdbc/execute! ds ["select * from client;"])
+
 
 (def clients
   #{{:_id "882b6098-0ac6-45cb-9722-dd0e120a5f9d"
