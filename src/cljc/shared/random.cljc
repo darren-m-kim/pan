@@ -1,4 +1,4 @@
 (ns shared.random)
 
-(defn make-uuid []
+(defn uuid []
   (.toString (java.util.UUID/randomUUID)))

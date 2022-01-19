@@ -4,7 +4,8 @@
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
         ring/ring {:mvn/version "1.9.5"}
         ring/ring-json {:mvn/version "0.5.1"}
-        compojure/compojure {:mvn/version "1.6.2"}            
         ring-cors/ring-cors {:mvn/version "0.1.13"}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        compojure/compojure {:mvn/version "1.6.2"}
         integrant/integrant {:mvn/version "0.8.0"}
         integrant/repl {:mvn/version "0.3.2"}}}
