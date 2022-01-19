@@ -1,6 +1,7 @@
 (ns server.core
   (:require
    [clojure.set :refer [join]]
+   [clojure.string :refer [join] :rename {join strjoin}]
    [ring.adapter.jetty :refer [run-jetty]]
    [ring.middleware.json :refer
     [wrap-json-response wrap-json-body]]
@@ -20,17 +21,35 @@
 
 (def ds (jdbc/get-datasource db))
 
-(jdbc/execute! ds ["
-create table client (
-  id serial primary key,
-  name text not null)"])
+(defn sqlize [vec]
+(->> vec
+     (map name)
+     (map (fn [s] (case s
+                    "p-open" "("
+                    "p-close" ")"
+                    "comma" ","
+                    s)))
+     (strjoin " ")))
 
-(jdbc/execute!
- ds
- ["insert into client (name) values ('Sean Corfield')"])
+(def migrations
+  {:up
+   {:client 
+    (sqlize ['create 'table 'client 'p-open
+             'id 'serial 'primary 'key 'comma
+             'name 'text 'not 'null 'p-close])}
+   {:person
+    (sqlize ['create 'table 'if 'not 'exists 'person
+             'p-open 'id 'serial 'primary 'key
+             'comma 'name 'text 'not 'null 'p-close])}
+   :down
+   {:client 
+    (sqlize ['drop 'table 'if 'exists 'client])}
+   {:person
+    (sqlize ['drop 'table 'if 'exists 'person])}})
 
-(jdbc/execute! ds ["select * from client;"])
+(jdbc/execute! ds [(:client-up migrations)])
 
+;;;;;;;;;;
 
 (def clients
   #{{:_id "882b6098-0ac6-45cb-9722-dd0e120a5f9d"
