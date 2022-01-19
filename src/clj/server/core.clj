@@ -1,5 +1,6 @@
 (ns server.core
   (:require
+   [clojure.set :refer [join]]
    [ring.adapter.jetty :refer [run-jetty]]
    [ring.middleware.json :refer
     [wrap-json-response wrap-json-body]]
@@ -14,29 +15,37 @@
    [shared.random :refer [uuid]]))
 
 (def clients
-  [{:_id "882b6098-0ac6-45cb-9722-dd0e120a5f9d"
-    :ed "d09eb3a2-217f-4f93-80a3-22672fb7945b"
-    :v_from "11/1/2020"
-    :v_thru "12/2/2021"
-    :legal_name "Bitem, LLC"
-    :short_name "Bitem"}])
+  #{{:_id "882b6098-0ac6-45cb-9722-dd0e120a5f9d"
+     :eid "d09eb3a2-217f-4f93-80a3-22672fb7945b"
+     :v_from "11/1/2020"
+     :v_thru "12/2/2021"
+     :legal_name "Bitem, LLC"
+     :short_name "Bitem"}})
 
-;; (uuid)
+(def persons
+  #{{:_id "2af229dc-e45a-4bdb-a15f-786b7b7b70b5"
+     :eid "ac197719-1f37-4c2d-a689-23872896991b"
+     :v_from "11/1/2020"
+     :v_thru "12/2/2021"
+     :client_eid "d09eb3a2-217f-4f93-80a3-22672fb7945b"
+     :first_name "Darren"
+     :last_name "Kim"}
+    {:_id "842dbf58-21f6-4cf9-b04b-4d3a88630a18"
+     :eid "3ae28020-0f99-4a95-ab0d-37411a438f35"
+     :v_from "11/1/2020"
+     :v_thru "12/2/2021"
+     :client_eid "d09eb3a2-217f-4f93-80a3-22672fb7945b"
+     :first_name "Jack"
+     :last_name "Reacher"}})
 
-(def workers
-  [{:_id "2af229dc-e45a-4bdb-a15f-786b7b7b70b5"
-    :ed "ac197719-1f37-4c2d-a689-23872896991b"
-    :v_from "11/1/2020"
-    :v_thru "12/2/2021"
-    :client_id "d09eb3a2-217f-4f93-80a3-22672fb7945b"
-    :first_name "Darren"
-    :last_name "Kim"}])
+(join persons clients {:client_eid :eid})
 
 (def paths
   (routes
    (GET "/" [] (response "asdfdf"))
    (GET "/test" [] (response {:baz "qsssux"}))
-   (GET "/api/client" [] (response clients))
+   (GET "/api/clients" [] (response clients))
+   (GET "/api/persons" [] (response persons))
    (not-found {:error "Not found"})))
 
 (def app
