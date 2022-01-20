@@ -1,3 +1,9 @@
+# 2022-01-20
+* added unit testing.
+# 2022-01-19
+* drafted client and person tabls.
+# 2022-01-18
+* added postgresql.
 # 2022-01-16
 * connected client to server.
 * simplified server codebase.
