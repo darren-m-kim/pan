@@ -9,5 +9,6 @@
         compojure/compojure {:mvn/version "1.6.2"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.2.761"}
         org.postgresql/postgresql {:mvn/version "42.2.10"}
+        clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}
         integrant/integrant {:mvn/version "0.8.0"}
         integrant/repl {:mvn/version "0.3.2"}}}
