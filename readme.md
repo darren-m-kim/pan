@@ -1,7 +1,9 @@
 # Server Side
-## run
-on terminal:
+## to run
 $ clj -X server.core/run
+## to test
+$ clj -X:test
+
 # Client Side
 ## starting template
 https://www.youtube.com/watch?v=p61lhOvQg2Q&t=337s

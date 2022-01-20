@@ -1,12 +1,10 @@
 (ns server.core
   (:require
-   [clojure.set :refer [join]
-    :rename {join set-join}]
-   [clojure.string :refer [join]
-    :rename {join str-join}]
+   [clojure.set :refer [join] :rename {join set-join}]
+   [clojure.string :refer [join] :rename {join str-join}]
    [ring.adapter.jetty :refer [run-jetty]]
-   [ring.middleware.json :refer
-    [wrap-json-response wrap-json-body]]
+   [ring.middleware.json :refer [wrap-json-response
+                                 wrap-json-body]]
    [ring.middleware.cors :refer [wrap-cors]]
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.util.response :refer [response]]
@@ -14,73 +12,24 @@
    [compojure.core :refer
     [routes GET POST PUT DELETE]]
    [compojure.route :refer [not-found]]
-   [next.jdbc :as jdbc]
-   [next.jdbc.sql :as sql]
-   [next.jdbc.date-time :as time]
+   [next.jdbc :refer [get-datasource execute!]]
+   [next.jdbc.sql :refer [insert!]]
+   ;; [next.jdbc.date-time :as time]
    ;;[integrant.core :refer [ref] :rename {ref iref}]
    [shared.random :refer [uuid]]
-   [java-time :as jt]))
+   [java-time :refer [instant instant->sql-timestamp
+                      local-date sql-date plus minus]]
 
-
+   ))
 
 
 ;; time
 
-(defn make-date-zoned [{:keys [year month day]}]
-  (jt/zoned-date-time year month day))
-
-
-(defn make-years [n]
-  (jt/years n))
-
-(defn make-months [n]
-  (jt/months n))
-
-(defn make-days [n]
-  (jt/days n))
-
-(defn make-date [{:keys [year month day]}]
-  (jt/local-date year month day))
-
-(jt/local-date-time 2021 4 12 13 23 31 123)
-
-
-(defn sqldate->localdate [sqldate]
-  (jt/local-date sqldate))
-
-(defn make-stamp []
-  (jt/instant->sql-timestamp 
-   (jt/instant)))
-
-(defn str->date [s]
-  (jt/local-date "yyyy-MM-dd" s))
-
-(defn date->str [d]
-  (jt/format "yyyy-MM-dd" d))
-
-(defn ensure-date-type [x]
-  (if (string? x)
-    (str->date x)
-    x))
-
-(defn ensure-date-string [x]
-  (if (string? x)
-    x (date->str x)
-    ))
-
-(defn add [{:keys [date span]}]
-  (jt/plus date span))
-
-(defn subtract [{:keys [date span]}]
-  (jt/minus date span))
-
-(defn until [{:keys [earlier later]}]
-  (let [ens-earlier (ensure-date-type earlier)
-        ens-later (ensure-date-type later)]
-    (.until ens-earlier ens-later (java.time.temporal.ChronoUnit/DAYS))))
-
-(defn later? [earlier later]
-  (> (until {:earlier earlier :later later}) 0))
+(defn timestamp
+  "create a sql timestamp."
+  []
+  (-> (instant)
+      instant->sql-timestamp))
 
 ;;;; Db
 
@@ -90,104 +39,101 @@
    :host "localhost"})
 
 (def db-conn
-  (jdbc/get-datasource db-info))
-
-(defn convert-symbol [symb]
-  (case (name symb)
-    "p-open" "("
-    "p-close" ")"
-    "comma" ","
-    "semicolon" ";"
-    symb))
-
-(defn sqlize [vec]
-  (->> vec
-       (map convert-symbol)
-       (str-join " ")))
-
+  (get-datasource db-info))
 
 ;;;; migration
 
 (def mig-up-sql
-  {:client 
-   (sqlize ['create 'table 'if 'not 'exists 'client
-            'p-open 'aid 'serial 'primary 'key
-            'comma 'eid 'uuid 'not 'null
-            'comma 'v_from 'timestamp 'not 'null
-            'comma 'v_thru 'timestamp 'not 'null
-            'comma 'legal_name 'text 'not 'null
-            'comma 'short_name 'text 'not 'null
-            'comma 'num_person 'int 'not 'null
-            'comma 'num_manager 'int 'not 'null
-            'p-close 'semicolon])
+  {:client
+   (str "CREATE TABLE IF NOT EXISTS client (" 
+        "aid SERIAL PRIMARY KEY, " 
+        "eid UUID NOT NULL, "
+        "crat TIMESTAMP NOT NULL, "
+        "vfrom TIMESTAMP NOT NULL, " 
+        "vthru TIMESTAMP NOT NULL, " 
+        "legalname TEXT NOT NULL, " 
+        "shortname TEXT NOT NULL, " 
+        "numperson INT NOT NULL, " 
+        "nummanager INT NOT NULL);")
    :person
-   (sqlize ['create 'table 'if 'not 'exists 'person
-            'p-open 'aid 'serial 'primary 'key
-            'comma 'eid 'uuid 'not 'null
-            'comma 'v_from 'timestamp 'not 'null
-            'comma 'v_thru 'timestamp 'not 'null
-            'comma 'client_id 'uuid 'not 'null
-            'comma 'first_name 'text 'not 'null
-            'comma 'last_name 'text 'not 'null
-            'comma 'is_manager 'boolean 'not 'null
-            'p-close 'semicolon])})
+   (str "CREATE TABLE IF NOT EXISTS person ("
+        "aid SERIAL PRIMARY KEY, "
+        "eid UUID NOT NULL, "
+        "crat TIMESTAMP NOT NULL, "
+        "vfrom TIMESTAMP NOT NULL, "
+        "vthru TIMESTAMP NOT NULL, "
+        "clienteid UUID NOT NULL, "
+        "firstname TEXT NOT NULL, "
+        "lastname TEXT NOT NULL, "
+        "ismanager BOOLEAN NOT NULL);")})
 
 (def mig-down-sql
-  {:client
-   (sqlize ['drop 'table 'if 'exists 'client 'semicolon])
-   :person
-   (sqlize ['drop 'table 'if 'exists 'person 'semicolon])})
+  {:client "DROP TABLE IF EXISTS client;"
+   :person "DROP TABLE IF EXISTS person;"})
 
-(defn db-up []
+(defn db-up [dbc]
   (doseq [sql (vals mig-up-sql)]
-    (jdbc/execute! db-conn [sql])))
+    (execute! dbc [sql])))
 
-(defn db-down []
+(defn db-down [dbc]
   (doseq [sql (vals mig-down-sql)]
-    (jdbc/execute! db-conn [sql])))
+    (execute! dbc [sql])))
 
-;; (db-up)
-;; (db-down)
+;; (db-up db-conn)
+;; (db-down db-conn)
 
-;;;;;;;;;;
+(defn post-client [dbc legalname shortname numperson nummanager]
+  (let [eid (uuid)
+        now (timestamp)
+        eternal (sql-date 9999)
+        client {:eid eid 
+                :crat now
+                :vfrom now 
+                :vthru eternal
+                :legalname legalname
+                :shortname shortname
+                :numperson numperson
+                :nummanager nummanager}]
+    (insert! dbc :client client)))
 
-(def clients
-  #{{:eid #uuid "ac197719-1f37-4c2d-a689-23872896991b"
-     :v_from (make-stamp)
-     :v_thru (make-stamp)
-     :legal_name "Bitem, LLC"
-     :short_name "Bitem"
-     :num_person 2
-     :num_manager 1}})
+;; (post-client db-conn "Bitem, LLC" "bitem" 2 1)
 
-(def persons
-[{:eid   #uuid "1902c205-2bc6-40b8-943b-f5b199241316" 
-     :v_from (make-stamp);; => #inst "2022-01-20T06:59:31.627826000-00:00"
-     :v_thru #inst "5000-01-20T06:59:31.627826000-00:00"
-     :client_id #uuid "ac197719-1f37-4c2d-a689-23872896991b"
-     :first_name "Darren"
-     :last_name "Kim"
-     :is_manager true}
-    {:eid #uuid "3ae28020-0f99-4a95-ab0d-37411a438f35"
-     :v_from (make-stamp)
-     :v_thru #inst "5000-01-20T06:59:31.627826000-00:00"
-     :client_id #uuid "ac197719-1f37-4c2d-a689-23872896991b"
-     :first_name "Jack"
-     :last_name "Reacher"
-     :is_manager false}])
+(defn get-clients [dbc]
+  (execute! dbc ["select * from client;"]))
 
-(sql/insert! db-conn :client (first clients))
+(defn get-persons [dbc]
+  (execute! dbc ["select * from person;"]))
 
-(sql/insert! db-conn :person (first persons))
-(sql/insert! db-conn :person (second persons))
+(get-clients db-conn)
+;; => [#:client{:numperson 2,
+;;              :crat #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :shortname "Bitem",
+;;              :vthru #inst "5000-01-01T05:00:00.000000000-00:00",
+;;              :aid 1,
+;;              :nummanager 1,
+;;              :eid #uuid "ac197719-1f37-4c2d-a689-23872896991b",
+;;              :vfrom #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :legalname "Bitem, LLC"}]
 
-
-(defn get-clients []
-  (jdbc/execute! db-conn ["select * from client;"]))
-
-(defn get-persons []
-  (jdbc/execute! db-conn ["select * from person;"]))
-
+(get-persons db-conn)
+;; => [#:person{:vfrom #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :ismanager true,
+;;              :eid #uuid "1902c205-2bc6-40b8-943b-f5b199241316",
+;;              :vthru #inst "5000-01-01T05:00:00.000000000-00:00",
+;;              :lastname "Kim",
+;;              :aid 1,
+;;              :crat #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :clienteid #uuid "ac197719-1f37-4c2d-a689-23872896991b",
+;;              :firstname "Darren"}
+;;     #:person{:vfrom #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :ismanager false,
+;;              :eid #uuid "98d18d0b-b965-4e96-9437-ba3a281040c4",
+;;              :vthru #inst "5000-01-01T05:00:00.000000000-00:00",
+;;              :lastname "Lovelace",
+;;              :aid 2,
+;;              :crat #inst "2022-01-20T14:27:23.541000000-00:00",
+;;              :clienteid #uuid "ac197719-1f37-4c2d-a689-23872896991b",
+;;              :firstname "Linda"}]
 
 
 ;; (set-join persons clients {:client_eid :eid})

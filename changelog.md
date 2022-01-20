@@ -1,5 +1,6 @@
 # 2022-01-20
-* added unit testing.
+* added unit testing based on
+https://clojure.org/guides/deps_and_cli
 # 2022-01-19
 * drafted client and person tabls.
 # 2022-01-18
