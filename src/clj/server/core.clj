@@ -43,28 +43,31 @@
 
 ;;;; migration
 
+(defn create-tbl-phrase [table-name]
+  (str "CREATE TABLE IF NOT EXISTS " table-name " ("))
+
+(def base-fields
+  (str "recordid SERIAL PRIMARY KEY, " 
+       "entityid UUID NOT NULL, "
+       "createdat TIMESTAMP NOT NULL, "
+       "validfrom TIMESTAMP NOT NULL, " 
+       "validthru TIMESTAMP NOT NULL, "))
+
+(def trait-field
+  "trait JSONB NOT NULL, ")
+
 (def mig-up-sql
   {:client
-   (str "CREATE TABLE IF NOT EXISTS client (" 
-        "aid SERIAL PRIMARY KEY, " 
-        "eid UUID NOT NULL, "
-        "crat TIMESTAMP NOT NULL, "
-        "vfrom TIMESTAMP NOT NULL, " 
-        "vthru TIMESTAMP NOT NULL, " 
-        "legalname TEXT NOT NULL, " 
-        "shortname TEXT NOT NULL, " 
+   (str (create-tbl-phrase 'client)
+        base-fields
+        trait-field
         "numperson INT NOT NULL, " 
         "nummanager INT NOT NULL);")
    :person
-   (str "CREATE TABLE IF NOT EXISTS person ("
-        "aid SERIAL PRIMARY KEY, "
-        "eid UUID NOT NULL, "
-        "crat TIMESTAMP NOT NULL, "
-        "vfrom TIMESTAMP NOT NULL, "
-        "vthru TIMESTAMP NOT NULL, "
+   (str (create-tbl-phrase 'person)
+        base-fields
+        trait-field
         "clienteid UUID NOT NULL, "
-        "firstname TEXT NOT NULL, "
-        "lastname TEXT NOT NULL, "
         "ismanager BOOLEAN NOT NULL);")})
 
 (def mig-down-sql
@@ -79,22 +82,27 @@
   (doseq [sql (vals mig-down-sql)]
     (execute! dbc [sql])))
 
-;; (db-up db-conn)
-;; (db-down db-conn)
+(comment 
+  (db-down db-conn)
+  (db-up db-conn))
 
-(defn post-client [dbc legalname shortname numperson nummanager]
+;;
+
+(defn make-client [dbc legalname shortname numperson nummanager]
   (let [eid (uuid)
         now (timestamp)
-        eternal (sql-date 9999)
-        client {:eid eid 
-                :crat now
-                :vfrom now 
-                :vthru eternal
-                :legalname legalname
-                :shortname shortname
-                :numperson numperson
-                :nummanager nummanager}]
-    (insert! dbc :client client)))
+        eternal (sql-date 9999)]
+    {:eid eid 
+     :crat now
+     :vfrom now 
+     :vthru eternal
+     :legalname legalname
+     :shortname shortname
+     :numperson numperson
+     :nummanager nummanager}))
+
+(defn add-client-to-db [dbc client]
+  (insert! dbc :client client))
 
 ;; (post-client db-conn "Bitem, LLC" "bitem" 2 1)
 

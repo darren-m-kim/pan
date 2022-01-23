@@ -15,6 +15,7 @@
 
 (defn show-db []
   (merge {:dark @dark}
+         {:page @page}
          {:client @client}
          {:worker @worker}))
 
@@ -56,12 +57,6 @@
      [:p {:class "font-size-12 m-0"}
       "We will notify you whenever we make a new post. No spam, no marketing, we promise."]]]])
 
-(defn toggle-sidebar-btn []
-  [:button {:class "btn btn-action"
-            :type "button"}
-   [:i {:class "fa fa-bars"
-        :aria-hidden "true"}]])
-
 (defn brand-logo []
   [:a {:href "#"
        :class "navbar-text text-monospace"}
@@ -96,20 +91,27 @@
 
 (defn version-lb []
   [:span {:class "navbar-text text-monospace"}
-   (p/combine "v" "0.1")])
+   (p/combine "v" "1.0")])
+
+(defn menu-button [p]
+   [:li {:class "nav-item"}
+    [:a {:class "nav-link"
+         :on-click (fn [] (reset! page p))}
+     (clojure.string/capitalize (name p))]])
 
 (defn service-labels []
   [:ul {:class "navbar-nav d-none d-md-flex"} " "
-   [:li {:class "nav-item"}
-    [:a {:href "#", :class "nav-link"}
-     "Docs"]]
-   [:li {:class "nav-item"}
-    [:a {:href "#", :class "nav-link"}
-     "Products"]]])
+   (menu-button :entity)
+   (menu-button :transaction)
+   (menu-button :account)
+   (menu-button :template)
+   (menu-button :journal)
+   (menu-button :trend)
+   (menu-button :client)
+   (menu-button :enduser)])
 
 (defn nav-content []
   [:div {:class "navbar-content"}
-   [toggle-sidebar-btn]
    [brand-logo]
    [version-lb]
    [service-labels]])
@@ -152,7 +154,7 @@
 (defn dash-pg []
   [:div
    [nav-bar]
-   [side-bar]])
+   [:p "1234"]])
 
 (defn sign-in-pg []
   [:div {:class "page-wrapper"}
@@ -164,7 +166,14 @@
   []
   (println (show-db))
   (case @page
-    :intro nil
+    :entity [dash-pg]
+    :transaction [dash-pg]
+    :account [dash-pg]
+    :template [dash-pg]
+    :journal [dash-pg]
+    :trend [dash-pg]
+    :client [dash-pg]
+    :enduser [dash-pg]
     :sign-in [sign-in-pg]
     :dash [dash-pg]
     [sign-in-pg]))
