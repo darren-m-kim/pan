@@ -8,10 +8,24 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]))
 
+(def sample-chart-of-accounts
+  [{:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
+   {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}])
+
 (defonce dark (r/atom true))
-(defonce client (r/atom nil))
+(def client (r/atom {:legalname "Bitem, LLC"
+                     :description "Software Firm"}))
 (defonce worker (r/atom nil))
 (defonce page (r/atom nil))
+(def account (r/atom sample-chart-of-accounts))
 
 (defn show-db []
   (merge {:dark @dark}
@@ -156,6 +170,24 @@
    [nav-bar]
    [:p "1234"]])
 
+(defn client-page []
+  [:div {:class "page-wrapper with-navbar"}
+   [nav-bar]
+   [:div {:class "content-wrapper"}
+    [:div {:class "content"}
+     [:h2 {:class "content-title"}
+      (:legalname @client)]
+     [:p (:description @client)]]]])
+
+(defn account-page []
+  [:div {:class "page-wrapper with-navbar"}
+   [nav-bar]
+   [:div {:class "content-wrapper"}
+    [:div {:class "content"}
+     [:h2 {:class "content-title"}
+      "chart of accounts"]
+     (map (fn [a] [:p (:title a)]) @account)]]])
+
 (defn sign-in-pg []
   [:div {:class "page-wrapper"}
    [:div {:class "content-wrapper"}
@@ -168,11 +200,11 @@
   (case @page
     :entity [dash-pg]
     :transaction [dash-pg]
-    :account [dash-pg]
+    :account [account-page]
     :template [dash-pg]
     :journal [dash-pg]
     :trend [dash-pg]
-    :client [dash-pg]
+    :client [client-page]
     :enduser [dash-pg]
     :sign-in [sign-in-pg]
     :dash [dash-pg]
