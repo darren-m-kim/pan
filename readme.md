@@ -11,6 +11,7 @@ $ clj -X:test
 ## starting template
 https://www.youtube.com/watch?v=p61lhOvQg2Q&t=337s
 ## Run on terminal
+$ yarn install
 $ yarn start
 ## Connect REPL
 m-x cider-connect
