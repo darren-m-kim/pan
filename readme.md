@@ -5,6 +5,9 @@ $ clj -X server.core/run
 $ clj -X:test
 
 # Client Side
+## Installation
+* clojure cli
+* nodejs, npm, yarn
 ## starting template
 https://www.youtube.com/watch?v=p61lhOvQg2Q&t=337s
 ## Run on terminal
