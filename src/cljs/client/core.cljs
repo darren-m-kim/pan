@@ -6,7 +6,8 @@
             ["halfmoon" :as moon]
             [shared.parser :as p]
             [cljs-http.client :as http]
-            [cljs.core.async :refer [<!]]))
+            [cljs.core.async :refer [<!]]
+            [client.state :as state]))
 
 (def sample-chart-of-accounts
   [{:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
@@ -19,19 +20,6 @@
    {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
    {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}
    {:number 101 :title "Cash" :increased-by :debit :desc "Cash and equivalents"}])
-
-(defonce dark (r/atom true))
-(def client (r/atom {:legalname "Bitem, LLC"
-                     :description "Software Firm"}))
-(defonce worker (r/atom nil))
-(defonce page (r/atom nil))
-(def account (r/atom sample-chart-of-accounts))
-
-(defn show-db []
-  (merge {:dark @dark}
-         {:page @page}
-         {:client @client}
-         {:worker @worker}))
 
 (defn sign-in-crd []
   [:div {:class "w-400 mw-full"}
@@ -64,9 +52,9 @@
       [:input {:class "btn btn-primary btn-block",
                :value "Sign In"
                :on-click (fn []
-                           (reset! client 123)
-                           (reset! worker 456)
-                           (reset! page :dash))}]]]
+                           (reset! state/client 123)
+                           (reset! state/worker 456)
+                           (reset! state/page :dash))}]]]
     [:div {:class "px-card py-10 bg-light-lm bg-very-dark-dm rounded-bottom"}
      [:p {:class "font-size-12 m-0"}
       "We will notify you whenever we make a new post. No spam, no marketing, we promise."]]]])
@@ -80,7 +68,7 @@
   [:button {:class "btn btn-action"
             :on-click
             (fn []
-              (do (swap! dark #(not %))
+              (do (swap! state/dark #(not %))
                   (moon/toggleDarkMode)
                   (go (let [response (<! (http/get
                                           "http://localhost:3548/test"
@@ -98,9 +86,9 @@
 (defn sign-out-btn []
   [:button {:class "btn"
             :on-click (fn []
-                        (reset! worker nil)
-                        (reset! client nil)
-                        (reset! page :sign-in))}
+                        (reset! state/worker nil)
+                        (reset! state/client nil)
+                        (reset! state/page :sign-in))}
    "Sign Out"])
 
 (defn version-lb []
@@ -110,7 +98,7 @@
 (defn menu-button [p]
    [:li {:class "nav-item"}
     [:a {:class "nav-link"
-         :on-click (fn [] (reset! page p))}
+         :on-click (fn [] (reset! state/page p))}
      (clojure.string/capitalize (name p))]])
 
 (defn service-labels []
@@ -176,8 +164,8 @@
    [:div {:class "content-wrapper"}
     [:div {:class "content"}
      [:h2 {:class "content-title"}
-      (:legalname @client)]
-     [:p (:description @client)]]]])
+      (:legalname @state/client)]
+     [:p (:description @state/client)]]]])
 
 (defn account-page []
   [:div {:class "page-wrapper with-navbar"}
@@ -186,7 +174,7 @@
     [:div {:class "content"}
      [:h2 {:class "content-title"}
       "chart of accounts"]
-     (map (fn [a] [:p (:title a)]) @account)]]])
+     (map (fn [a] [:p (:title a)]) @state/account)]]])
 
 (defn sign-in-pg []
   [:div {:class "page-wrapper"}
@@ -196,8 +184,8 @@
 (defn pg-selector
   "selects page per values in client and worker."
   []
-  (println (show-db))
-  (case @page
+  (println (state/show-db))
+  (case @state/page
     :entity [dash-pg]
     :transaction [dash-pg]
     :account [account-page]
@@ -216,7 +204,7 @@
    (js/document.getElementById "root")))
 
 (defn ^:export init []
-  (reset! dark true)
+  (reset! state/dark true)
   (moon/toggleDarkMode)
   (run)
   (js/console.log "Loaded"))
