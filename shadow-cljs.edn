@@ -1,6 +1,7 @@
 {:source-paths ["src/cljs" "src/cljc"]
  :nrepl {:port 9000}
- :dependencies [[cider/cider-nrepl "0.27.4"]
+ :dependencies [[org.clojure/clojure "1.10.3"]
+                [cider/cider-nrepl "0.27.4"]
                 [binaryage/devtools "1.0.4"]
                 [reagent "1.1.0"]
                 [cljs-http "0.1.46"]]

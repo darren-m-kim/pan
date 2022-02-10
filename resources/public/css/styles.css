@@ -1,0 +1,58 @@
+@font-face {
+  font-family: main-font;
+  src: url(../fonts/roboto-reg.ttf);
+}
+
+div {
+  font-family: main-font;
+}
+
+.header { grid-area: a; }
+.menu { grid-area: b; }
+.content { grid-area: c; }
+.note { grid-area: d; }
+.footer { grid-area: e; }
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+      'a a a a a a a'
+      'b c c c c d d'
+      'b e e e e e e';
+  grid-gap: 10px;
+  background-color: #99a7bd;
+  grid-template-rows: 40px 800px;
+  padding: 0px;
+}
+
+.grid-container > div {
+  background-color: #b1e3d4;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 30px;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 12px 13px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+  background-color: #111;
+}

@@ -2,6 +2,8 @@
   (:require
    [clojure.set :refer [join] :rename {join set-join}]
    [clojure.string :refer [join] :rename {join str-join}]
+   [clojure.spec.alpha :as spec]
+   [cheshire.core :as json]
    [ring.adapter.jetty :refer [run-jetty]]
    [ring.middleware.json :refer [wrap-json-response
                                  wrap-json-body]]
@@ -17,10 +19,23 @@
    ;; [next.jdbc.date-time :as time]
    ;;[integrant.core :refer [ref] :rename {ref iref}]
    [shared.random :refer [uuid]]
+;;   [shared.shape :as shape]
    [java-time :refer [instant instant->sql-timestamp
-                      local-date sql-date plus minus]]
+                      local-date sql-date plus minus]]))
 
-   ))
+(spec/def :name string?)
+(spec/def :desc string?)
+(spec/def :chart/entity (spec/keys :req-un [:name :desc]))
+
+
+(def chart-1 {:name "Fund A Chart"
+              :desc "Testing purposes"})
+
+(spec/explain :chart/entity chart-1)
+
+(json/generate-string chart-1)
+;; => "{\"name\":\"Fund A Chart\",\"desc\":\"Testing purposes\"}"
+;; "{\"chart/name\":\"Fund A Chart\",\"chart/desc\":\"Testing purposes\"}"
 
 
 ;; time

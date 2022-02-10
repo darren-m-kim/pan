@@ -2,6 +2,7 @@
          ;;"dev/clj"
          "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
+        cheshire/cheshire {:mvn/version "5.10.2"}
         ring/ring {:mvn/version "1.9.5"}
         ring/ring-json {:mvn/version "0.5.1"}
         ring-cors/ring-cors {:mvn/version "0.1.13"}
