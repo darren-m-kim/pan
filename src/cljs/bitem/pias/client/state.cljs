@@ -1,5 +1,7 @@
-(ns client.state
-  (:require [reagent.core :as r]))
+(ns bitem.pias.client.state
+  (:require
+   [reagent.core :as r]
+   [bitem.pias.common.shape :refer :all]))
 
 
 (defonce dark (r/atom true))

@@ -1,4 +1,4 @@
-(ns server.core
+(ns bitem.pias.server.core
   (:require
    [clojure.set :refer [join] :rename {join set-join}]
    [clojure.string :refer [join] :rename {join str-join}]
