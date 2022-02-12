@@ -1,7 +1,4 @@
-(ns user
-  (:require
-   [integrant.repl :as igre]
-   [server.system :as system]))
+(ns user)
 
 #_#_#_#_#_#_
 (igre/set-prep! (fn [] system/config))

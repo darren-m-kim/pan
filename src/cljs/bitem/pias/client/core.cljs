@@ -1,32 +1,44 @@
 (ns bitem.pias.client.core 
   (:require
    [clojure.spec.alpha :as s]
-   #_[reagent.core :as r]
+   [reagent.core :as r]
    [reagent.dom :as d]
-   [bitem.pias.common.shape :as h]))
+   [bitem.pias.common.shape :as h]
+   [bitem.pias.client.state :as t]
+   [bitem.pias.client.content.clientele :as c]))
+
+(defn header-button [k]
+  ;;{:pre [(s/valid? ::h/content k)]}
+  [:li [:button {:on-click
+                 #(t/switch-content k)}
+        (name k)]])
 
 (defn header []
   [:ul {:class :header}
-   [:li [:a "clientele sign-up"]]
-   [:li [:a "personnel sign-up"]]
-   [:li [:a "personnel sign-in"]]
-   [:li [:a "dashboard"]]
-   [:li [:a "entity"]]
-   [:li [:a "chart"]]
-   [:li [:a  "account"]]
-   [:li [:a "template"]]
-   [:li [:a "transact"]]
-   [:li [:a "ledger"]]
-   [:li [:a "journal"]]
-   [:li [:a "reports"]]])
+   (map header-button h/content)])
 
 (defn content []
-  [:div {:class :content} "content"])
+  [:div {:class :content}
+   "content"])
 
 (defn hub []
   [:div {:class :grid-container}
    [header]
-   [content]])
+   (case @t/content
+     :clientele-sign-up [c/form]
+     :personnel-sign-up [:p "b"]
+     :personnel-sign-in [:p "c"]
+     :dashboard [:p "d"]
+     :entity [:p "e"]
+     :chart [:p "f"]
+     :account [:p "g"]
+     :template [:p "h"]
+     :transact [:p "i"]
+     :ledger [:p "j"]
+     :journal [:p "k"]
+     :report [:p "l"]
+     [:p "no content is selected!"]
+     )])
 
 (defn run []
   (d/render

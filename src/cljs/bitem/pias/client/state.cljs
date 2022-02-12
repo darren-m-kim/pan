@@ -1,21 +1,20 @@
 (ns bitem.pias.client.state
   (:require
+   [clojure.spec.alpha :as s]
    [reagent.core :as r]
-   [bitem.pias.common.shape :refer :all]))
+   [bitem.pias.common.shape :as h]))
 
 
-(defonce dark (r/atom true))
-(defonce client (r/atom {:legalname "Bitem, LLC"
-                         :description "Software Firm"}))
-(defonce worker (r/atom nil))
-(defonce page (r/atom nil))
-(defonce account (r/atom nil))
+(defonce content (r/atom nil))
 
-(defn show-db []
-  (merge {:dark @dark}
-         {:page @page}
-         {:client @client}
-         {:worker @worker}))
+(defn db []
+  (merge {:content @content}))
+
+(defn switch-content [c]
+  {:pre [(s/valid? ::h/content c)]} 
+  (reset! content c)
+  (print "Content atom changed to " @content))
+
 
 
 
