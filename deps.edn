@@ -1,5 +1,4 @@
-{:paths ["src/clj" "src/cljc"
-         ;;"dev/clj"
+{:paths ["src/clj" "src/cljc" ;;"dev/clj"
          "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
         cheshire/cheshire {:mvn/version "5.10.2"}
