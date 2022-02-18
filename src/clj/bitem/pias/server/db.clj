@@ -5,9 +5,9 @@
    [java-time :as m]
    [next.jdbc :as n]
    [next.jdbc.sql :as q]
-   [bitem.pias.common.shape :as h])
-  (:import (java.util UUID)
-           (org.postgresql.util PGobject)))
+   [bitem.pias.common.shape :as h]
+   [bitem.pias.server.random :as r])
+  (:import (org.postgresql.util PGobject)))
 
 (defn <-pgobject
   "Transform PGobject containing
@@ -21,9 +21,8 @@
           {:pgtype type}))
       value)))
 
-(defn uuid []
-  (UUID/randomUUID))
-
+(s/fdef now
+  :ret inst?)
 (defn now []
   (m/instant->sql-timestamp
    (m/instant)))
@@ -37,13 +36,13 @@
   (n/get-datasource db-info))
 
 (def mig-up-sql
-  (str "create table if not exists dt ("
+  (str "create table data ("
        "rid serial primary key, "
        "tag jsonb not null, "
-       "doc jsonb not null);"))
+       "doc jsonb not null); "))
 
 (def mig-down-sql
-  "drop table if exists dt;")
+  "drop table if exists data;")
 
 (defn migrate [db k]
   (let [sql (case k
@@ -51,38 +50,65 @@
               :down mig-down-sql)]
     (n/execute! db [sql])))
 
+(s/fdef jsonb
+  :args (s/cat :m map?)
+  :ret string?)
 (defn jsonb [m]
-  {:pre [(s/valid? map? m)]
-   :post [(s/valid? string? %)]}
   (str "'" (e/generate-string m) "'"))
 
-(defn read-all [collection]
-  {:pre [(s/valid? ::h/collection collection)]}
-  (let [sql (str "select * from dt where "
-                 "doc ->> 'collection' = '"
-                 (name collection) "';")]
-    (-> (q/query db [sql])
-        first
-        :dt/doc
-        <-pgobject)))
+(defn row->map [row]
+  {:rid (-> row :data/rid)
+   :tag (-> row :data/tag <-pgobject)
+   :doc (-> row :data/doc <-pgobject)})
+
+(defn read-all [subject]
+  (let [sql (str "select * from data where "
+                 "doc ->> 'subject' = '"
+                 (name subject) "';")
+        rows (q/query db [sql])]
+    (->> rows
+         (map row->map))))
+
+(defn read-entity-historical [entity-id]
+  {:pre [(s/valid? ::h/entity-id entity-id)]}
+  (let [sql (str "select * from data where "
+                 "doc ->> 'entity-id' = '"
+                 entity-id "';")
+        rows (q/query db [sql])]
+    (->> rows
+         (map row->map))))
 
 (defn insert! [tag doc]
   {:pre [(s/valid? map? tag)
          (s/valid? map? doc)]}
-  (let [sql (str "insert into dt (tag, doc) values ("
+  (let [sql (str "insert into data (tag, doc) values ("
                  (jsonb tag) ", "
                  (jsonb doc) ");")]
     (n/execute! db [sql])))
 
+(s/fdef tag
+  :args (s/cat :k ::h/db-act)
+  :ret ::h/tag)
 (defn tag [k]
-  {:pre [(s/valid? ::h/db-act k)]
-   :post [(s/valid? ::h/tag %)]}
-  (case k
-    :insert {:created-at (now) :status :drafted}
-    :update {:created-at (now) :status :drafted}
-    :delete {:created-at (now) :status :drafted}))
+  (let [now (now)]  
+    (case k
+      :insert {:created-at now
+               :valid-from now
+               :status :posted}
+      :update {:created-at now :status :posted}
+      :delete {:created-at now :status :posted})))
 
 (comment 
   "migration"
-  (migrate db-conn :up)
-  (migrate db-conn :down))
+  (migrate db :up)
+  (migrate db :down))
+
+
+(comment
+  "snippets for testing"
+  (insert! {:status :tested} {:collection :account :abilities #{1 2 3}})
+  (-> (read-all :account)
+      first
+      :doc
+      :abilities
+      type))

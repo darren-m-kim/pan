@@ -1,7 +1,6 @@
 (ns bitem.pias.server.core
   (:require
-   [clojure.spec.alpha :as s]
-   [cheshire.core :as e]
+   [clojure.tools.logging :as g]
    [ring.adapter.jetty :as t]
    [ring.middleware.json :as j]
    [ring.middleware.cors :as c]
@@ -9,8 +8,8 @@
    [ring.util.response :as i]
    [compojure.core :as p]
    [compojure.route :as u]
-   [bitem.pias.common.shape :as h]
-   [bitem.pias.server.content.clientele :as v]))
+   [bitem.pias.server.content.client :as v]
+   [bitem.pias.server.content.person :as o]))
 
 (def info-handlers
   [(p/GET "/" [] (i/response "Bitem PIAS API Server"))
@@ -19,7 +18,8 @@
 
 (def paths
   (apply p/routes
-         (flatten [v/clientele-handlers
+         (flatten [v/client-handlers
+                   o/person-handlers
                    info-handlers])))
 
 (defn cors [next]
@@ -43,16 +43,16 @@
     :join? false}))
 
 (defn start []
-  (print "jetty started.")
+  (g/info "jetty started.")
   (reset! server (jetty)))
 
 (defn stop []
   (let [s @server]
     (if s
       (do (.stop @server)
-          (print "server stopped.")
+          (g/info "server stopped.")
           (reset! server nil))
-      (print "server not running now."))))
+      (g/info "server not running now."))))
 
 (defn refresh []
   (stop)
@@ -62,7 +62,7 @@
   (start))
 
 (comment
+  "control, will be moved to user ns."
   (start)
   (stop)
-  (refresh)
-  )
+  (refresh))
