@@ -6,7 +6,8 @@
    [compojure.core :as p]
    [bitem.pias.server.db :as b]
    [bitem.pias.common.shape :as h]
-   [bitem.pias.server.random :as r]))
+   [bitem.pias.server.random :as r]
+   [bitem.pias.server.sign :as n]))
 
 (s/fdef client-exists?
   :args (s/cat :eid ::h/entity-id)
@@ -40,6 +41,23 @@
                                     (with-out-str (s/explain ::h/person new))
                                     (false? clients?) "some clients do not exist.")}))))
 
+(s/fdef sign-in-persom
+  :args (s/cat :email ::h/email
+               :password ::h/password))
+(defn sign-in [req]
+  (let [{:keys [email password]} (-> req :body)
+        sql (str "select * from data where "
+                 "doc->>'subject' = 'person' and "
+                 "doc->>'email' = '" email "' and "
+                 "doc->>'password' = '" password "';")
+        persons (b/run-sql sql)]
+    (cond (empty? persons) (i/bad-request {:result :fail
+                                           :reason "can't find the combination"})
+          (< 1 (count persons)) (i/bad-request {:result :fail
+                                                :reason "duplicate data detected"})
+          :else (i/response (n/jwt (first persons))))))
+
 (def person-handlers
-  [(p/GET "/api/person" [] read-all-persons)
+  [(p/GET "/api/sign-in" [] sign-in)
+   (p/GET "/api/person" [] read-all-persons)
    (p/POST "/api/person" [] insert-person!)])

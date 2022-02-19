@@ -6,8 +6,8 @@
    [next.jdbc :as n]
    [next.jdbc.sql :as q]
    [bitem.pias.common.shape :as h]
-   [bitem.pias.server.random :as r])
-  (:import (org.postgresql.util PGobject)))
+ #_  [bitem.pias.server.random :as r])
+ #_ (:import (org.postgresql.util PGobject)))
 
 (defn <-pgobject
   "Transform PGobject containing
@@ -69,22 +69,15 @@
     (->> rows
          (map row->map))))
 
+(s/fdef read-entity-historical
+  :args (s/cat :entity-id ::h/entity-id))
 (defn read-entity-historical [entity-id]
-  {:pre [(s/valid? ::h/entity-id entity-id)]}
   (let [sql (str "select * from data where "
                  "doc ->> 'entity-id' = '"
                  entity-id "';")
         rows (q/query db [sql])]
     (->> rows
          (map row->map))))
-
-(defn insert! [tag doc]
-  {:pre [(s/valid? map? tag)
-         (s/valid? map? doc)]}
-  (let [sql (str "insert into data (tag, doc) values ("
-                 (jsonb tag) ", "
-                 (jsonb doc) ");")]
-    (n/execute! db [sql])))
 
 (s/fdef tag
   :args (s/cat :k ::h/db-act)
@@ -97,6 +90,32 @@
                :status :posted}
       :update {:created-at now :status :posted}
       :delete {:created-at now :status :posted})))
+
+(s/fdef insert!
+  :args (s/cat :tag map? :doc map?))
+(defn insert! [tag doc]
+  {:pre [(s/valid? map? tag)
+         (s/valid? map? doc)]}
+  (let [sql (str "insert into data (tag, doc) values ("
+                 (jsonb tag) ", "
+                 (jsonb doc) ");")]
+    (n/execute! db [sql])))
+
+
+(s/fdef filter-rid
+  :args (s/cat :rid ::h/rid))
+(defn filter-rid [rid]
+  (let [sql (str "select * from data "
+                 "where rid = "
+                 rid ";")]
+    (n/execute! db [sql])))
+
+(s/fdef run-sql
+  :args (s/cat :s string?))
+(defn run-sql [s]
+  (->> (n/execute! db [s])
+       (map row->map)))
+
 
 (comment 
   "migration"

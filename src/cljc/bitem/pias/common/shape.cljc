@@ -9,13 +9,20 @@
 #_(t/unstrument)
 
 
-;;;; individual ;;;;
+;;;; general individual ;;;;
 
 (s/def ::name string?)
 
 (s/def ::entity-id uuid?)
 
+(s/def ::rid (s/and int? pos?))
+
 (s/def ::user-hash uuid?)
+
+(def password?
+  #(re-matches #"((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,24})" %))
+
+(s/def ::password password?)
 
 
 ;;;; subject ;;;;
@@ -96,9 +103,13 @@
 (s/def ::num-persons
   (s/and int? pos? #(< % 500)))
 
-(s/def ::client
+(s/def ::client-req
   (s/keys :req-un [::name ::num-persons ::subject]
           :opt-un [::entity-id ::user-hash]))
+
+(s/def ::client
+  (s/keys :req-un [::name ::num-persons ::subject
+                   ::entity-id ::user-hash]))
 
 
 ;;;; person ;;;; 
@@ -124,6 +135,15 @@
              :kind vector?
              :distinct true))
 
-(s/def ::person
-  (s/keys :req-un [::subject ::name ::abilities]
+(s/def ::person-req
+  (s/keys :req-un [::subject ::name ::abilities
+                   ::email ::password]
           :opt-un [::clients ::entity-id]))
+
+(s/def ::person
+  (s/keys :req-un [::subject ::name ::abilities
+                   ::email ::password
+                   ::clients ::entity-id]))
+
+(s/def ::sign-in-req
+  (s/keys :req-un [::email ::password]))

@@ -10,7 +10,8 @@
         compojure/compojure {:mvn/version "1.6.2"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.2.761"}
         org.postgresql/postgresql {:mvn/version "42.2.10"}
-        clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}}
+        clojure.java-time/clojure.java-time {:mvn/version "0.3.3"}
+        buddy/buddy-sign {:mvn/version "3.4.333"}}
  :aliases
  {:test {:extra-paths ["test/clj" "test/cljc"]
          :extra-deps {io.github.cognitect-labs/test-runner
