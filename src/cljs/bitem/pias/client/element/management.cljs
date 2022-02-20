@@ -1,4 +1,4 @@
-(ns bitem.pias.client.content.clientele
+(ns bitem.pias.client.element.management
   (:require
    [clojure.spec.alpha :as s]
    [reagent.core :as r]
@@ -17,20 +17,20 @@
 
 (defn form []
   [:div
-   [:label "company name: "]
+   [:label "Management Name: "]
    [:input {:type "text"
             :value @loc-name
             :on-change #(reset! loc-name
                                 (-> % .-target .-value))}]
    [:br]
-   [:label "number of end users: "]
+   [:label "Number of End Users: "]
    [:input {:type "number"
             :value @loc-num-persons
             :on-change #(reset! loc-num-persons
                                 (-> % .-target .-value
                                     js/parseInt))}]
    [:br] [:br]
-   [:button {:type "submit"
+   [:button {:type "Submit"
              :key "a"
              :on-click (fn [] (print "hoho" (loc-clientele)))}
     "submit"]])

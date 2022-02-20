@@ -9,14 +9,14 @@
    [bitem.pias.server.random :as r]
    [bitem.pias.server.sign :as n]))
 
-(s/fdef client-exists?
+(s/fdef management-exists?
   :args (s/cat :eid ::h/entity-id)
   :ret boolean?)
-(defn client-exists? [eid]
-  (let [client-ids (->> (b/read-all :client)
+(defn management-exists? [eid]
+  (let [management-ids (->> (b/read-all :management)
                         (map (comp :entity-id :doc))
                         (set))]
-    (client-ids (r/uuid->str eid))))
+    (management-ids (r/uuid->str eid))))
 
 (defn read-all-persons [_]
   (let [read (b/read-all :person)]
@@ -26,20 +26,21 @@
 
 (defn insert-person! [req]
   (let [body (:body req)
-        clients (into [] (map r/str->uuid (:clients body)))
+        managements (into [] (map r/str->uuid (:managements body)))
         new (assoc body
                    :entity-id (r/uuid)
-                   :clients clients)
-        clients? (every? identity (map client-exists? clients))
+                   :managements managements)
+        managements? (every? identity (map management-exists? managements))
         conforming? (s/valid? ::h/person new)]
-    (if (and conforming? clients?)
+    (if (and conforming? managements?)
       (do (g/info "good, given body conforms!")
           (b/insert! (b/tag :insert) new)
           (i/response {:result :success}))
       (i/bad-request {:result :fail
                       :reason (cond (false? conforming?)
                                     (with-out-str (s/explain ::h/person new))
-                                    (false? clients?) "some clients do not exist.")}))))
+                                    (false? managements?)
+                                    "some managements do not exist.")}))))
 
 (s/fdef sign-in-persom
   :args (s/cat :email ::h/email

@@ -4,41 +4,36 @@
    [reagent.core :as r]
    [reagent.dom :as d]
    [bitem.pias.common.shape :as h]
-   [bitem.pias.client.state :as t]
-   [bitem.pias.client.content.clientele :as c]))
+   ;[bitem.pias.client.state :as t]
+   [bitem.pias.client.element.management-list :as m]))
+
+(def element (r/atom nil))
+
+(defn switch-element [c] 
+  (reset! element c)
+  (print "element atom changed to " @element))
+
+(defn db []
+  (merge {:element @element}))
 
 (defn header-button [k]
-  ;;{:pre [(s/valid? ::h/content k)]}
-  [:li [:button {:on-click
-                 #(t/switch-content k)}
+  ;;{:pre [(s/valid? ::h/element k)]}
+  [:li [:button {:on-click #(switch-element k)}
         (name k)]])
 
 (defn header []
   [:ul {:class :header}
-   (map header-button h/content)])
-
-(defn content []
-  [:div {:class :content}
-   "content"])
+   (map header-button h/element)])
 
 (defn hub []
   [:div {:class :grid-container}
    [header]
-   (case @t/content
-     :clientele-sign-up [c/form]
-     :personnel-sign-up [:p "b"]
-     :personnel-sign-in [:p "c"]
-     :dashboard [:p "d"]
-     :entity [:p "e"]
-     :chart [:p "f"]
-     :account [:p "g"]
-     :template [:p "h"]
-     :transact [:p "i"]
-     :ledger [:p "j"]
-     :journal [:p "k"]
-     :report [:p "l"]
-     [:p "no content is selected!"]
-     )])
+   [:div (case @element
+           :management-list [m/table]
+           :management-register [:p "coming"]
+           :person-register [:p "c"]
+           :person-sign [:p "c"]
+           [:p "asdf"])]])
 
 (defn run []
   (d/render

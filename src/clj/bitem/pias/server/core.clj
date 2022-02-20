@@ -3,12 +3,11 @@
    [clojure.tools.logging :as g]
    [ring.adapter.jetty :as t]
    [ring.middleware.json :as j]
-   [ring.middleware.cors :as c]
    [ring.middleware.reload :as l]
    [ring.util.response :as i]
    [compojure.core :as p]
    [compojure.route :as u]
-   [bitem.pias.server.content.client :as v]
+   [bitem.pias.server.content.management :as v]
    [bitem.pias.server.content.person :as o]))
 
 (def info-handlers
@@ -18,14 +17,18 @@
 
 (def paths
   (apply p/routes
-         (flatten [v/client-handlers
+         (flatten [v/management-handlers
                    o/person-handlers
                    info-handlers])))
 
-(defn cors [next]
-  (c/wrap-cors next
-   :access-control-allow-origin [#".*"]
-   :access-control-allow-methods [:get]))
+(def cors-items
+  [["Access-Control-Allow-Origin" "http://localhost:1729"]
+   ["Access-Control-Allow-Credentials" "true"]])
+
+(defn cors [handler]
+  (fn [req]
+    (let [resp (handler req)]
+      (reduce (fn [r [k v]] (assoc-in r [:headers k] v)) resp cors-items))))
 
 (def app
   (-> paths

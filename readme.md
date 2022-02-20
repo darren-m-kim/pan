@@ -3,7 +3,6 @@
 $ clj -X server.core/run
 ## to test
 $ clj -X:test
-
 # Client Side
 ## Installation
 * clojure cli
@@ -18,7 +17,6 @@ m-x cider-connect
 select 'localhost'
 enter port 9000
 shadow.user> (shadow/repl :app)
-
 # Naming Convention
 * Use :as but not :refer.
-* Abbreviate external libs but not internal namespaces.
+* Abbreviate evey imported ns into one letter alphabet.

@@ -28,7 +28,7 @@
 ;;;; subject ;;;;
 
 (def subject
-  [:client :person :chart
+  [:management :person :chart
    :account :transact :journal])
 
 (def subject?
@@ -80,34 +80,38 @@
 (s/def ::db-act db-act?)
 
 
-;;;; content ;;;;
+;;;; element ;;;;
+;; for client ;;;
 
-(def content
-  [:client-sign-up :person-sign-up
-   :person-sign-in :dashboard
-   :entity :chart
-   :account :template
-   :transact :ledger
-   :journal :report])
+(def element
+  [:management-register
+   :management-list
+   :person-register
+   :person-sign
+   #_ (comment :dashboard :entity
+            :chart :account
+            :template :transact
+            :ledger :journal
+            :report)])
 
-(def content?
-  (set (concat content
-               (map name content))))
+(def element?
+  (set (concat element
+               (map name element))))
 
-(s/def ::content
-  (into #{} content))
+(s/def ::element
+  (into #{} element))
 
 
-;;;; client ;;;;
+;;;; management ;;;;
 
 (s/def ::num-persons
   (s/and int? pos? #(< % 500)))
 
-(s/def ::client-req
+(s/def ::management-req
   (s/keys :req-un [::name ::num-persons ::subject]
           :opt-un [::entity-id ::user-hash]))
 
-(s/def ::client
+(s/def ::management
   (s/keys :req-un [::name ::num-persons ::subject
                    ::entity-id ::user-hash]))
 
@@ -130,7 +134,7 @@
              :kind vector?
              :distinct true))
 
-(s/def ::clients
+(s/def ::managements
   (s/coll-of uuid?
              :kind vector?
              :distinct true))
@@ -138,12 +142,12 @@
 (s/def ::person-req
   (s/keys :req-un [::subject ::name ::abilities
                    ::email ::password]
-          :opt-un [::clients ::entity-id]))
+          :opt-un [::managements ::entity-id]))
 
 (s/def ::person
   (s/keys :req-un [::subject ::name ::abilities
                    ::email ::password
-                   ::clients ::entity-id]))
+                   ::managements ::entity-id]))
 
 (s/def ::sign-in-req
   (s/keys :req-un [::email ::password]))

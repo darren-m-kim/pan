@@ -5,15 +5,8 @@
    [bitem.pias.common.shape :as h]))
 
 
-(defonce content (r/atom nil))
 
-(defn db []
-  (merge {:content @content}))
 
-(defn switch-content [c]
-  {:pre [(s/valid? ::h/content c)]} 
-  (reset! content c)
-  (print "Content atom changed to " @content))
 
 
 

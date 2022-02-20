@@ -1,4 +1,4 @@
-(ns bitem.pias.server.content.client
+(ns bitem.pias.server.content.management
   (:require
    [clojure.spec.alpha :as s]
    [clojure.tools.logging :as g]
@@ -8,26 +8,26 @@
    [bitem.pias.common.shape :as h]
    [bitem.pias.server.random :as r]))
 
-(defn read-all-clients [_]
-  (let [read (b/read-all :client)]
+(defn read-all-managements [_]
+  (let [read (b/read-all :management)]
     (if read
-      (i/response (b/read-all :client))
+      (i/response (b/read-all :management))
       (i/not-found {:status :fail}))))
 
-(defn insert-client! [req]
+(defn insert-management! [req]
   (let [body (:body req)
         user-hash (r/uuid)
         new (assoc body
                    :entity-id (r/uuid)
                    :user-hash user-hash)]
-    (if (s/valid? ::h/client new)
+    (if (s/valid? ::h/management new)
       (do (g/info "good, given body conforms!")
           (b/insert! (b/tag :insert) new)
           (i/response {:result :success
                        :user-hash user-hash}))
       (i/bad-request {:result :fail
-                      :reason (with-out-str (s/explain ::h/client new))}))))
+                      :reason (with-out-str (s/explain ::h/management new))}))))
 
-(def client-handlers
-  [(p/GET "/api/client" [] read-all-clients)
-   (p/POST "/api/client" [] insert-client!)])
+(def management-handlers
+  [(p/GET "/api/management" [] read-all-managements)
+   (p/POST "/api/management" [] insert-management!)])
