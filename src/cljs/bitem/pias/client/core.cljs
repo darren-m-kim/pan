@@ -4,41 +4,59 @@
    [reagent.core :as r]
    [reagent.dom :as d]
    [bitem.pias.common.shape :as h]
-   ;[bitem.pias.client.state :as t]
-   [bitem.pias.client.element.management-list :as m]))
+   [bitem.pias.client.state :as t]
+   [bitem.pias.client.element.management.list :as m]
+   [bitem.pias.client.element.management.edit :as e]))
 
-(def element (r/atom nil))
+(defn menu []
+  [:div
+   [:p "menu"]
+   [:ul
+    [:li
+     [:a "management"]
+     [:ul
+      [:li [:a {:on-click #(reset! t/element [:management :list])} "list-managements"]]
+      [:li [:a {:on-click #(reset! t/element [:management :edit])} "edit-management"]]
+      [:li [:a {:on-click #(reset! t/element [:management :add])} "add-management"]]]]
+    [:li
+     [:a "account"]
+     [:ul
+      [:li [:a {:on-click (fn [] (reset! t/element :all-charts))} "all-charts"]]
+      [:li [:a "add-chart"]]
+      [:li [:a "edit-chart"]]
+      [:li [:a "all-accounts-of-a-chart"]]
+      [:li [:a "add-account-to-a-chart"]]
+      [:li [:a "edit-account"]]]]
+    [:li [:a "entity"]]
+    [:li [:a "time"]]
+    [:li [:a "out"]]]])
 
-(defn switch-element [c] 
-  (reset! element c)
-  (print "element atom changed to " @element))
+(defn status-liner [elem]
+  (let [[e1 e2] (map name elem)]
+    (str e1 "->" e2)))
 
-(defn db []
-  (merge {:element @element}))
-
-(defn header-button [k]
-  ;;{:pre [(s/valid? ::h/element k)]}
-  [:li [:button {:on-click #(switch-element k)}
-        (name k)]])
-
-(defn header []
-  [:ul {:class :header}
-   (map header-button h/element)])
+(defn content []
+  [:div
+   [:p (status-liner @t/element)]
+   (case @t/element
+     [:management :list] [m/table]
+     [:management :edit] [e/ttt]
+     [:management :add] [m/table]
+     [:p "no element is selected."])])
 
 (defn hub []
-  [:div {:class :grid-container}
-   [header]
-   [:div (case @element
-           :management-list [m/table]
-           :management-register [:p "coming"]
-           :person-register [:p "c"]
-           :person-sign [:p "c"]
-           [:p "asdf"])]])
+  [:div
+   [menu]
+   [content]])
 
 (defn run []
   (d/render
    [hub]
    (js/document.getElementById "root")))
+
+
+
+
 
 (defn ^:export init []
   (run)

@@ -4,9 +4,7 @@
    [reagent.core :as r]
    [bitem.pias.common.shape :as h]))
 
-
-
-
+(def element (r/atom nil))
 
 
 
