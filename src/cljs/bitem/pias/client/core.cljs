@@ -1,12 +1,13 @@
 (ns bitem.pias.client.core 
   (:require
-   [clojure.spec.alpha :as s]
-   [reagent.core :as r]
+   #_[clojure.spec.alpha :as s]
+   #_[reagent.core :as r]
    [reagent.dom :as d]
-   [bitem.pias.common.shape :as h]
+   #_[bitem.pias.common.shape :as h]
    [bitem.pias.client.state :as t]
-   [bitem.pias.client.element.management.list :as m]
-   [bitem.pias.client.element.management.edit :as e]))
+   [bitem.pias.client.style :as l]
+   [bitem.pias.client.element.management.list :as mgmt-list]
+   [bitem.pias.client.element.management.edit :as mgmt-edit]))
 
 (defn menu []
   [:div
@@ -39,13 +40,14 @@
   [:div
    [:p (status-liner @t/element)]
    (case @t/element
-     [:management :list] [m/table]
-     [:management :edit] [e/ttt]
-     [:management :add] [m/table]
+     [:management :list] [mgmt-list/table]
+     [:management :edit] [mgmt-edit/ttt]
+     [:management :add] [mgmt-list/table]
      [:p "no element is selected."])])
 
 (defn hub []
   [:div
+   [l/combined]
    [menu]
    [content]])
 
@@ -53,10 +55,6 @@
   (d/render
    [hub]
    (js/document.getElementById "root")))
-
-
-
-
 
 (defn ^:export init []
   (run)
