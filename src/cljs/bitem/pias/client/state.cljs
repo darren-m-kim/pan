@@ -1,13 +1,10 @@
 (ns bitem.pias.client.state
   (:require
-   [clojure.spec.alpha :as s]
-   [reagent.core :as r]
-   [bitem.pias.common.shape :as h]))
+   #_ [clojure.spec.alpha :as s]
+   [reagent.core :as reag]
+   #_ [bitem.pias.common.shape :as h]))
 
-(def element (r/atom nil))
-
-
-
+(def control (reag/atom {}))
 
 (comment
 
