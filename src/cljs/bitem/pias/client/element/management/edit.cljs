@@ -47,7 +47,7 @@
             #(println (str @_name ";;;;;" @_num-persons))}
         "submit"]])))
 
-(defn ttt []
+(defn unit []
   (if @entity
     [:<>
      [:p "current state:"]

@@ -1,4 +1,6 @@
-(ns bitem.pias.client.util)
+(ns bitem.pias.client.util
+  (:require
+   [clojure.string :as cstr]))
 
 (defn tablize [m]
   (let [heads (map key m)
@@ -10,3 +12,7 @@
     [:tbody
      [:tr
       (map (fn [t] [:td t]) tails)]]))
+
+(defn class [& ks]
+  (let [without-nils (filter #(not (nil? %)) ks)]
+    {:class (cstr/join " " (map name without-nils))}))

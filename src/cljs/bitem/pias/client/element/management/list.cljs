@@ -4,40 +4,48 @@
    #_[clojure.spec.alpha :as s]
    #_[bitem.pias.common.shape :as h]
    [cljs-http.client :as http]
-   [bitem.pias.client.state :as t]
+   [bitem.pias.client.state :as state]
    [cljs.core.async :refer [<!]]
    [bitem.pias.client.element.management.edit :as e]
    ))
 
-(defonce d (atom []))
+(defonce data (atom []))
 
 (defn fetch []
-  (go (let [response (<! (http/get "http://localhost:3548/api/management"))
-            managements (-> response :body)]
-        (reset! d managements))))
+  (let [url  "http://localhost:3548/api/management"]
+    (go (let [response (<! (http/get url))
+              managements (-> response :body)]
+          (reset! data managements)))))
 
+(defn item [m]
+  [:tr
+   [:td {:class "text-center"} (-> m :doc :user-hash)]
+   [:td {:class "text-center"} (-> m :doc :name)]
+   [:td {:class "text-center"} (-> m :doc :num-persons)]
+   [:td {:class "text-center"}
+    [:button {:class "btn"
+              :on-click
+              (fn []
+                (swap! state/control assoc :management (-> m :doc :name)))} "Load"]]
+   [:td {:class "text-center"}
+    [:button {:class "btn"
+              :on-click
+              (fn []
+                (reset! e/entity m)
+                (swap! state/control assoc :element [:management :edit]))} "Edit"]]])
 
 (defn table []
   (fetch)
-  [:table
-   [:thead
-    [:tr
-     [:th "entity-id"]
-     [:th "user-hash"]
-     [:th "name"]
-     [:th "num-of-users"]
-     [:th "action"]]]
-   [:tbody
-    (map (fn [m]
-           [:tr
-            [:td (-> m :doc :entity-id)]
-            [:td (-> m :doc :user-hash)]
-            [:td (-> m :doc :name)]
-            [:td (-> m :doc :num-persons)]
-            [:td {:on-click
-                  (fn []
-                    (reset! e/entity m)
-                    (reset! t/element
-                            [:management :edit]))}
-             "edit"]])
-         @d)]])
+  [:div {:class "card"}
+   [:h1 {:class "card-title text-center"}
+    "List of Managements Subscribed"]
+   [:table {:class "table"}
+    [:thead
+     [:tr
+      [:th {:class "text-center"} "Hash"]
+      [:th {:class "text-center"} "Name"]
+      [:th {:class "text-center"} "Users"]
+      [:th {:class "text-center"} "Mode"]
+      [:th {:class "text-center"} "Action"]]]
+    [:tbody
+     (map item @data)]]])

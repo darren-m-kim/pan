@@ -5,13 +5,14 @@
    [reagent.dom :as rdom]
    ["halfmoon" :as moon]
    [bitem.pias.client.state :as state]
-  #_ [bitem.pias.client.element.management.list :as mgmt-list]
-  #_ [bitem.pias.client.element.management.edit :as mgmt-edit]))
+   [bitem.pias.client.util :as util]
+   [bitem.pias.client.element.sign.in :as sign-in]
+   [bitem.pias.client.element.management.list :as mgmt-list]
+   [bitem.pias.client.element.management.edit :as mgmt-edit]))
 
 (defn toggle-sidebar-btn []
   [:button {:class "btn btn-action"
-            :type "button"
-            :on-click (fn [] (moon/toggleSidebar))}
+            :type "button"}
    [:i {:class "fa fa-bars"
         :aria-hidden "true"}]])
 
@@ -21,14 +22,15 @@
    [:p "bitem"]])
  
 (defn change-color-btn []
-  [:button {:class "btn btn-action"
-            :on-click
-            (fn []
-              (swap! state/control assoc :dark-mode
-                     (-> @state/control :dark-mode not))
-              (moon/toggleDarkMode))}
-   [:i {:class "fas fa-moon"
-        :aria-hidden "true"}]])
+  (let [current-mode (-> @state/control :dark-mode)
+        flipping (fn []
+                   (swap! state/control assoc :dark-mode (not current-mode))
+                   (moon/toggleDarkMode)
+                   (print @state/control))]
+    [:button {:class "btn btn-action"
+              :on-click flipping}
+     [:i {:class "fas fa-moon"
+          :aria-hidden "true"}]]))
 
 (defn search-box []
   [:input {:type "text"
@@ -49,7 +51,7 @@
   [:li {:class (cstr/join " " ["nav-item"
                                (when (= (-> @state/control :element first) k)
                                  "active")])
-        :on-click #(swap! state/control assoc :element [k])}
+        :on-click #(swap! state/control assoc :element [k nil])}
    [:a {:class "nav-link"} (-> k name cstr/capitalize)]])
 
 (defn section-links []
@@ -59,31 +61,46 @@
    (section-link :entity)
    (section-link :account)])
 
+(defn status []
+  (let [mgmt-name (or (-> @state/control :management)
+                      "Not Selected")
+        person-name (-> @state/control :person :name)]
+    [:span {:class "navbar-text"}
+     (str "[ " mgmt-name " - " person-name " ]")]))
+
 (defn nav-content []
   [:div {:class "navbar-content"}
    [toggle-sidebar-btn]
    [brand-logo]
    [version-label]
-   [section-links]])
+   [section-links]
+   [status]])
 
 (defn nav-form []
   [:form {:class "form-inline d-none d-md-flex ml-auto"}
-   (change-color-btn)
-   (search-box)
-   (sign-change-btn)])
+   [change-color-btn]
+   [search-box]
+   [sign-change-btn]])
 
 (defn navbar []
-  [:div {:class "page-wrapper with-navbar"}
-   [:nav
-    {:class "navbar"}
-    (nav-content)
-    (nav-form)]])
+  [:nav
+   {:class "navbar"}
+   [nav-content]
+   [nav-form]])
 
-(defn side-item [icon subject]
-  [:a {:class "sidebar-link sidebar-link-with-icon"}
-   [:span {:class "sidebar-icon"}
-    [:i {:class icon :aria-hidden true}]]
-   subject])
+(defn side-item [icon subject & add-fn]
+  (let [current-elem (-> @state/control :element)
+        new-elem [(first current-elem) subject]]
+    [:a (merge (util/class :sidebar-link
+                           :sidebar-link-with-icon
+                           :nav-item nil
+                           (when (= (second current-elem) subject) :text-success))
+               {:on-click (fn []
+                            (when add-fn ((first add-fn)))
+                            (swap! state/control assoc :element new-elem))})
+     [:span {:class "sidebar-icon"}
+      [:i {:class icon :aria-hidden true}]]
+     (-> subject name cstr/capitalize)]))
 
 (defn sidebar []
   [:div {:class "sidebar"}
@@ -97,10 +114,11 @@
               (side-item "fa fa-terminal" "Journal")
               (side-item "fa fa-terminal" "Ledger")
               (side-item "fa fa-terminal" "Report")]
-      :management [:<> 
-                   (side-item "fa fa-terminal" "List")
-                   (side-item "fa fa-terminal" "Edit")
-                   (side-item "fa fa-terminal" "Add")]
+      :management
+      [:<> 
+       (side-item "fa fa-terminal" :list)
+       (side-item "fa fa-terminal" :edit #(reset! mgmt-edit/entity (-> @state/control :management)))
+       (side-item "fa fa-terminal" :add)]
       :entity [:<> 
                (side-item "fa fa-terminal" "Entity")
                (side-item "fa fa-terminal" "Ownership")
@@ -116,25 +134,26 @@
                 (side-item "fa fa-terminal" "Ledger")
                 (side-item "fa fa-terminal" "Report")])]])
 
+(defn element-section []
+  [:div {:class "content-wrapper"}
+   (case (-> @state/control :element)
+     [:management :list] [mgmt-list/table]
+     [:management :edit] [mgmt-edit/unit]  
+
+     )])
+
 (defn app-pg []
-  [:div
+  [:div {:class "page-wrapper with-navbar with-sidebar with-navbar-fixed-bottom"}
    [navbar]
-   [sidebar]])
-
-(defn sign-on-btn []
-  [:button {:class "btn"
-            :on-click #(swap! state/control assoc :signed true)}
-   "Sign in!"])
-
-(defn sign-pg []
-  [sign-on-btn])
+   [sidebar]
+   [element-section]])
 
 (defn scaffold
   "the selector of all pages."
   []
   (if (:signed @state/control)
     [app-pg]
-    [sign-pg]))
+    [sign-in/page]))
 
 (defn run []
   (swap! state/control assoc :dark-mode true)
@@ -150,5 +169,4 @@
 
 (defn ^:export refresh []
   (run)
-  (swap! state/control assoc :element [:management :add])
   (print "hot-reloaded"))
