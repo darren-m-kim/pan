@@ -1,14 +1,13 @@
-(ns bitem.pias.client.core
+(ns freesia.core
   (:require
    [clojure.string :as cstr]
    [reagent.core :as reag]
    [reagent.dom :as rdom]
-   ["halfmoon" :as moon]
-   [bitem.pias.client.state :as state]
-   [bitem.pias.client.util :as util]
-   [bitem.pias.client.element.sign.in :as sign-in]
-   [bitem.pias.client.element.management.list :as mgmt-list]
-   [bitem.pias.client.element.management.edit :as mgmt-edit]))
+   [freesia.state :as state]
+   [freesia.util :as util]
+   [freesia.element.sign.in :as sign-in]
+   [freesia.element.management.list :as mgmt-list]
+   [freesia.element.management.edit :as mgmt-edit]))
 
 (defn toggle-sidebar-btn []
   [:button {:class "btn btn-action"
@@ -25,7 +24,6 @@
   (let [current-mode (-> @state/control :dark-mode)
         flipping (fn []
                    (swap! state/control assoc :dark-mode (not current-mode))
-                   (moon/toggleDarkMode)
                    (print @state/control))]
     [:button {:class "btn btn-action"
               :on-click flipping}
@@ -138,9 +136,7 @@
   [:div {:class "content-wrapper"}
    (case (-> @state/control :element)
      [:management :list] [mgmt-list/table]
-     [:management :edit] [mgmt-edit/unit]  
-
-     )])
+     [:management :edit] [mgmt-edit/unit])])
 
 (defn app-pg []
   [:div {:class "page-wrapper with-navbar with-sidebar with-navbar-fixed-bottom"}
@@ -163,7 +159,6 @@
    (js/document.getElementById "root")))
 
 (defn ^:export init []
-  (moon/toggleDarkMode)
   (run)
   (print "initialized and loaded"))
 

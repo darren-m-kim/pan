@@ -7,11 +7,14 @@
    [clojure.java.io :as io]
    [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
    [compojure.route :as route]
+   [selmer.parser :as parser]
    [environ.core :refer [env]]
    [ring.adapter.jetty :as jetty]
    [compojure.handler :refer [site]]
    [freesia.content.management :as v]
    [freesia.content.person :as o]))
+
+(parser/set-resource-path! (io/resource "/public/"))
 
 (defn splash []
   {:status 200
@@ -20,7 +23,8 @@
 
 (defroutes app
   (GET "/" []
-       (splash))
+       (splash)
+      (parser/render-file "index.html" {:name "frontend"}))
   (ANY "*" []
        (route/not-found (slurp (io/resource "404.html")))))
 

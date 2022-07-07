@@ -1,6 +1,6 @@
-(ns bitem.pias.client.element.sign.up
+(ns freesia.element.sign.up
   (:require
-   [bitem.pias.client.state :as state]))
+   [freesia.state :as state]))
 
 (defn card []
   [:div {:class "w-400 mw-full"}

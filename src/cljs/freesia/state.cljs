@@ -1,4 +1,4 @@
-(ns bitem.pias.client.state
+(ns freesia.state
   (:require
    [reagent.core :as reag]))
 

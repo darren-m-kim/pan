@@ -12,3 +12,4 @@ data/
 .eastwood/
 .clj-kondo/
 .lsp/
+target/
