@@ -1,4 +1,4 @@
-(ns bitem.pias.common.shape
+(ns freesia.shape
   (:require
    [clojure.spec.alpha :as s]
    [clojure.spec.test.alpha :as t]))

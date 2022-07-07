@@ -1,13 +1,13 @@
-(ns bitem.pias.server.content.person
+(ns freesia.content.person
   (:require
    [clojure.spec.alpha :as s]
    [clojure.tools.logging :as g]
    [ring.util.response :as i]
    [compojure.core :as p]
-   [bitem.pias.server.db :as b]
-   [bitem.pias.common.shape :as h]
-   [bitem.pias.server.random :as r]
-   [bitem.pias.server.sign :as n]))
+   [freesia.db :as b]
+   [freesia.shape :as h]
+   [freesia.random :as r]
+   [freesia.sign :as n]))
 
 (s/fdef management-exists?
   :args (s/cat :eid ::h/entity-id)

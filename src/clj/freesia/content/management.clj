@@ -1,12 +1,12 @@
-(ns bitem.pias.server.content.management
+(ns freesia.content.management
   (:require
    [clojure.spec.alpha :as s]
    [clojure.tools.logging :as g]
    [ring.util.response :as i]
    [compojure.core :as p]
-   [bitem.pias.server.db :as b]
-   [bitem.pias.common.shape :as h]
-   [bitem.pias.server.random :as r]))
+   [freesia.db :as b]
+   [freesia.shape :as h]
+   [freesia.random :as r]))
 
 (defn read-all-managements [_]
   (let [read (b/read-all :management)]

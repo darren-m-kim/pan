@@ -10,3 +10,5 @@ log-archive/
 dev-classes/
 data/
 .eastwood/
+.clj-kondo/
+.lsp/

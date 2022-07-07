@@ -1,11 +1,11 @@
-(ns bitem.pias.server.db
+(ns freesia.db
   (:require
    [clojure.spec.alpha :as s]
    [cheshire.core :as e]
    [java-time :as m]
    [next.jdbc :as n]
    [next.jdbc.sql :as q]
-   [bitem.pias.common.shape :as h]
+   [freesia.shape :as h]
  #_  [bitem.pias.server.random :as r])
  #_ (:import (org.postgresql.util PGobject)))
 

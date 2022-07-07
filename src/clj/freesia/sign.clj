@@ -1,8 +1,8 @@
-(ns bitem.pias.server.sign
+(ns freesia.sign
   (:require
    [clojure.spec.alpha :as s]
    [buddy.sign.jwt :as bjwt]
-   [bitem.pias.common.shape :as h])
+   [freesia.shape :as h])
   (:import
    (java.time Instant)))
 

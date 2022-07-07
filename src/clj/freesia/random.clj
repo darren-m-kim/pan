@@ -1,4 +1,4 @@
-(ns bitem.pias.server.random
+(ns freesia.random
   (:import (java.util UUID)))
 
 (defn uuid []

@@ -1,4 +1,4 @@
-(ns server.core-test
+(ns freesia.web-test
   (:require [clojure.test :refer [deftest testing is
                                   run-all-tests]]
             [next.jdbc :refer [get-datasource execute!]]

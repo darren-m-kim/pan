@@ -1,0 +1,1 @@
+web: java $JVM_OPTS -cp target/freesia-standalone.jar clojure.main -m freesia.web
