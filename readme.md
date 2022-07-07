@@ -1,8 +1,8 @@
 # Server Side
 ## to run
-$ clj -X server.core/run
+$ lein run
 ## to test
-$ clj -X:test
+$ lein test
 # Client Side
 ## Installation
 * clojure cli

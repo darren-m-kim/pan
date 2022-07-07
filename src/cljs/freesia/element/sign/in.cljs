@@ -1,6 +1,6 @@
-(ns bitem.pias.client.element.sign.in
+(ns freesia.element.sign.in
   (:require
-   [bitem.pias.client.state :as state]))
+   [freesia.state :as state]))
 
 (def mock-person
   {:name "Olav Sugaredy"

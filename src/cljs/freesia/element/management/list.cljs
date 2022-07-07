@@ -1,12 +1,12 @@
-(ns bitem.pias.client.element.management.list
+(ns freesia.element.management.list
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    #_[clojure.spec.alpha :as s]
    #_[bitem.pias.common.shape :as h]
    [cljs-http.client :as http]
-   [bitem.pias.client.state :as state]
+   [freesia.state :as state]
    [cljs.core.async :refer [<!]]
-   [bitem.pias.client.element.management.edit :as e]
+   [freesia.element.management.edit :as e]
    ))
 
 (defonce data (atom []))

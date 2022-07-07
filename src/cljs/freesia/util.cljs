@@ -1,4 +1,4 @@
-(ns bitem.pias.client.util
+(ns freesia.util
   (:require
    [clojure.string :as cstr]))
 

@@ -1,10 +1,10 @@
-(ns bitem.pias.client.element.management.edit
+(ns freesia.element.management.edit
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [clojure.spec.alpha :as s]
    [reagent.core :as r]
-   [bitem.pias.common.shape :as h]
-   [bitem.pias.client.util :as u]
+   [freesia.shape :as h]
+   [freesia.util  :as u]
    [cljs-http.client :as http]
    [cljs.core.async :refer [<!]]))
 

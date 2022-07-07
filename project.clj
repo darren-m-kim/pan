@@ -2,10 +2,12 @@
   :description "Demo Clojure web app"
   :url "http://freesia.herokuapp.com"
   :license {:name "All Rights Reserved"}
+  :main freesia.web
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [compojure "1.6.1"]
                  [ring/ring-jetty-adapter "1.7.1"]
                  [environ "1.1.0"]
+                 [selmer "1.12.52"]
                  [org.clojure/tools.logging "1.2.4"]
                  [cheshire/cheshire "5.10.2"]
                  [ring/ring "1.9.5"]

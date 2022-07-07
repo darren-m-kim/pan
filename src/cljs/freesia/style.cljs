@@ -1,4 +1,4 @@
-(ns bitem.pias.client.style
+(ns freesia.style
   (:require
    [garden.core :as g]))
 
